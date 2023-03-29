@@ -1,0 +1,20 @@
+class Pokemon {
+    constructor (nombre, cantidad, precio , imagen){
+        this._nombre = nombre;
+        this._cantidad = cantidad;
+        this._precio = precio;
+        this._imagen = imagen;
+    }
+
+    get nombre(){
+        return this._nombre;
+    }
+
+    set nombre(nuevoNombre){
+        this._nombre = nuevoNombre;
+    }
+    get cantidad(){
+        return this._cantidad;
+    }
+    
+}

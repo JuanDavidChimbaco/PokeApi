@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Pokémon Cards</title>
+	<style>
+		.cards {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+
+		.card {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			width: 250px;
+			margin: 20px;
+			padding: 20px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+			transition: transform 0.3s;
+		}
+
+		.card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 8px 10px rgba(0, 0, 0, 0.3);
+		}
+
+		.card img {
+			width: 150px;
+			height: 150px;
+			object-fit: contain;
+		}
+
+		.card h3 {
+			font-size: 24px;
+			margin-top: 10px;
+			margin-bottom: 5px;
+		}
+
+		.card p {
+			font-size: 16px;
+			margin: 0;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="cards"></div>
+	<button id="anterior">Anterior</button>
+	<button id="siguiente">Siguiente</button>
+	<script>
+		let paginaActual = 1;
+		const numPaginas = 50;
+		function obtenerPokemon() {
+			const url = 'https://pokeapi.co/api/v2/pokemon?limit=1281';
+
+			fetch(url)
+				.then(respuesta => respuesta.json())
+				.then(datos => {
+					const cards = document.querySelector('.cards');
+					datos.results.forEach(pokemon => {
+						
+						fetch(pokemon.url)
+						.then(respuesta => respuesta.json())
+						.then(datosPokemon => {
+							const card = document.createElement('div');
+							card.classList.add('card');
+							
+							const imagen = document.createElement('img');
+							imagen.src = datosPokemon.sprites.front_default;
+							imagen.alt = pokemon.name;
+							
+							const nombre = document.createElement('h3');
+							nombre.textContent = pokemon.name;
+							
+							const habilidades = document.createElement('p');
+							habilidades.textContent = `Habilidades: ${datosPokemon.abilities.map(ability => ability.ability.name).join(', ')}`;
+							
+							const tipo = document.createElement('p');
+							tipo.textContent = `Tipo: ${datosPokemon.types.map(type => type.type.name).join(', ')}`;
+							
+							card.appendChild(imagen);
+							card.appendChild(nombre);
+							card.appendChild(habilidades);
+							card.appendChild(tipo);
+							cards.appendChild(card);
+						})
+							.catch(error => console.error(error));
+						});
+						const paginacion = new Promise((resolve, reject) => {
+							const numResultados = datos.count;
+							const numPaginas = Math.ceil(numResultados / 20);
+			
+							if (paginaActual < numPaginas) {
+								siguiente.disabled = false;
+							} else {
+								siguiente.disabled = true;
+							}
+			
+							if (paginaActual > 1) {
+								anterior.disabled = false;
+							} else {
+								anterior.disabled = true;
+							}
+			
+							resolve();
+						});
+				})
+				.catch(error => console.error(error));
+			}
+
+		const anterior = document.getElementById('anterior');
+		anterior.addEventListener('click', () => {
+			if (paginaActual > 1) {
+				paginaActual--;
+				obtenerPokemon();
+			}
+		});
+
+		const siguiente = document.getElementById('siguiente');
+		siguiente.addEventListener('click', () => {
+			if (paginaActual < numPaginas) {
+				paginaActual++;
+				obtenerPokemon();
+			}
+		});
+		obtenerPokemon();
+	</script>
+</body>
+
+</html>

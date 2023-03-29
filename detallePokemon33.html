@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeApi</title>
+    <!-- Latest compiled and minified CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Latest compiled JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" />
+</head>
+<body onload="getDetallePokemon()" id="pokemon">
+    <style>
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: Arial, sans-serif;
+        }
+        .tipo-normal {
+          background-color: #A8A090;
+        }
+        .tipo-fighting {
+          background-color: #A05038;
+        }
+        .tipo-flying {
+          background-color: #98A8F0;
+        }
+        .tipo-poison {
+          background-color: #B058A0;
+        }
+        .tipo-ground {
+          background-color: #E9D6A4;
+        }
+        .tipo-rock {
+          background-color: #B8A058;
+        }
+        .tipo-bug {
+            background-color: #A8B820;
+        }
+        .tipo-ghost {
+            background-color: #6060B0;
+        }
+        .tipo-steel {
+            background-color: #A8A8C0;
+        }
+        .tipo-fire {
+          background-color: #F05030;
+        }
+        .tipo-water {
+          background-color: #3899F8;
+        }
+        .tipo-grass {
+          background-color: #78C850;
+        }
+        .tipo-electric {
+            background-color: #F8D030;
+        }
+        .tipo-psychic {
+            background-color: #F870A0;
+        }
+        .tipo-ice {
+            background-color: #58C8E0;
+        }
+        .tipo-dragon {
+            background-color: #7860E0;
+        }
+        .tipo-dark {
+            background-color: #7A5848;
+        }
+        .tipo-fairy {
+            background-color: #E79FE7;
+        }
+        .tipo-unknown {
+            background-color: #424242;
+        }
+        .tipo-shadow {
+            background-color: #230C2E;
+        }
+        /* Añade más estilos para cada tipo de pokemon aquí */
+      </style>
+    <div class="container-fluid">
+        <h1 class="text-center">Detalle Pokemon</h1>
+        <div class="row justify-content-center">
+            <div class="col-6 "  id="detalle">
+                
+                
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-2" id="tipos">
+                
+        </div>
+    </div>
+    <script src="scrip3.js"></script>
+</body>
+</html>
