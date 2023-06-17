@@ -1,5 +1,5 @@
 .BgCarousel {
-    background-image: url("img/expansion-imagen.jpg");
+    background-image: url("../img/bg.jpg");
     background-size: cover;
     background-position: bottom;
 }

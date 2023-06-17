@@ -99,25 +99,49 @@ function searchPokemon(){
         document.getElementById("txtBuscar").value = "";
     })
 }
+
 // ----------------- Funcionamiento pokeApi ------------------
 const categorias = []
 const palabras = []
-const cabeceras = {
-    'Accept-Language': 'es'
-  };
+
 //------------------- Obtener pokemon ----------------
 function typePokemon() {
     return new Promise((resolve) => {
-        fetch("https://pokeapi.co/api/v2/type" ,  { headers: cabeceras })
+        fetch("../mvcPokemon/controllers/categorias.read.php")
             .then(Response => Response.json())
             .then(data => {
-
-                data.results.forEach(element => {
+                data.forEach(element => {
                     categorias.push(element);
                 });
                 resolve("Categorias ok");
             })
     })
+}
+// ---------------------IMG - Categorias -----------------
+function imagenC(name){
+    const imageMap = {
+        normal: "assets_Front/img/normal.png",
+        fighting: "assets_Front/img/fighting.png",
+        flying: "assets_Front/img/flying.png",
+        poison: "assets_Front/img/Poison.png",
+        ground: "assets_Front/img/ground.png",
+        rock: "assets_Front/img/rock.png",
+        bug: "assets_Front/img/bug.png",
+        ghost: "assets_Front/img/ghost.png",
+        steel: "assets_Front/img/steel.png",
+        fire: "assets_Front/img/fire.png",
+        water: "assets_Front/img/water.png",
+        grass: "assets_Front/img/grass.png",
+        electric: "assets_Front/img/electric.png",
+        psychic: "assets_Front/img/psychic.png",
+        ice: "assets_Front/img/ice.png",
+        dragon: "assets_Front/img/dragon.png",
+        dark: "assets_Front/img/dark.png",
+        fairy: "assets_Front/img/fairy.png",
+        unknown: "assets_Front/img/unknown.png",
+        shadow: "assets_Front/img/unknown.png",
+      };
+      return imageMap[name];
 }
 //--------------------- imprimir Pokemon ------------------
 function printCategorias() {
@@ -125,18 +149,19 @@ function printCategorias() {
         .then((response) => {
             let item = ""
             categorias.forEach((element, index) => {
+                const imageUrl = imagenC(element.nombreCat);
                 if (index == 0) {
                     item += `<div class="carousel-item active">
                         <div class="col-md-2">
                             <div class="card">
                                 <div class="card-img" >
-                                    <a onclick="urlLocal('${element.url}')" href="tipos.HTMl" >
-                                        <img src="${element.name == "normal"? "img/Pokemon_Normal.png" : "img/Pokemon_Normal.png"}"
+                                    <a onclick="urlLocal('${element.id}')" href="tipos.HTMl" >
+                                        <img src="${imageUrl}"
                                             class="img-fluid">
                                     </a>
                                 </div>
                                 <div class="card-img-overlays">
-                                    ${element.name}
+                                    ${element.nombreCat}
                                 </div>
                             </div>
                         </div>
@@ -146,22 +171,11 @@ function printCategorias() {
                         <div class="col-md-2">
                             <div class="card">
                                 <div class="card-img">
-                                    <a onclick="urlLocal('${element.url}')" href="tipos.HTMl">
-                                        <img src="${element.name == "normal"? "img/Pokemon_Normal.png" : element.name == "fighting"? "img/Pokémon_Fighting.png" : element.name == "flying" ? "img/pokemon_flying.png":
-                                        element.name == "poison" ? "img/Pokemon_Poison.png": element.name == "ground" ? "img/Pokemon_ground.png":
-                                        element.name == "rock" ? "img/Pokemon_rock.png": element.name == "bug" ? "img/Pokemon_bug.png":
-                                        element.name == "ghost" ? "img/Pokemon_ghost.png" : element.name == "steel" ? "img/Pokemon_steel.png":
-                                        element.name == "fire" ? "img/Pokemon_fire.png" : element.name == "water" ? "img/Pokemon_water.png":
-                                        element.name == "grass" ? "img/Pokemon_grass.png":element.name == "electric" ? "img/Pokemon_electric.png":
-                                        element.name == "psychic" ? "img/Pokemon_psychic.png":element.name == "ice" ? "img/Pokemon_ice.png":
-                                        element.name == "dragon" ? "img/Pokemon_dragon.png": element.name == "dark" ? "img/Pokemon_dark.png":
-                                        element.name == "fairy" ? "img/Pokemon_fairy.png":element.name == "unknown" ? "img/Pokemon_unknown.png":
-                                        element.name == "shadow" ? "img/Pokemon_unknown.png": null }"
-                                         }"
-                                            class="img-fluid">
+                                    <a onclick="urlLocal('${element.id}')" href="tipos.HTMl">
+                                        <img src="${imageUrl}" class="img-fluid">
                                     </a>
                                 </div>
-                                <div class="card-img-overlays">${element.name}</div>
+                                <div class="card-img-overlays">${element.nombreCat}</div>
                             </div>
                         </div>
                     </div>`
@@ -173,17 +187,13 @@ function printCategorias() {
         .then((response)=>{
             let item = ""
             categorias.forEach((element) => {
-
-              item += ` <li><a onclick="urlLocal('${element.url}')" href="tipos.HTMl" class="dropdown-item">${element.name}</a></li>`
+              item += ` <li><a onclick="urlLocal('${element.id}')" href="tipos.HTMl" class="dropdown-item">${element.nombreCat}</a></li>`
             });
             document.getElementById("pokemon-categoria").innerHTML = item
           })
 }
-//----------------------Funcion images por tipo --------------para terminar
-function imagen(element){
 
-}
 //--------------- Guardar la url en el LocalStorage ----------------
-function urlLocal(url){
-    localStorage.setItem("url",url);
+function urlLocal(id){
+    localStorage.setItem("categoria",id);
  }
