@@ -79,6 +79,7 @@ function filtrarPokemon(element){
     let nombre = element.name 
     return nombre.includes(textoBuscar.toLowerCase())
 }
+
 //------------------Funcion Icono Pokemon---------------------
 function iconoPokemon(urlPokemon){
     fetch(urlPokemon)
@@ -87,10 +88,12 @@ function iconoPokemon(urlPokemon){
         document.getElementById(`icono${data.name}`).src = data.sprites.other["official-artwork"].front_default
     })
 }
+
 //___________________Guardar en LocalStorage Detalle Pokemon---------------------------
 function detallePokemon(urlPokemon){
     localStorage.urlDetalle = urlPokemon
 }
+
 //-----------------Funcion Evento Boton del Input search---------------------------------------
 function searchPokemon(){
     document.getElementById("txtBuscar").addEventListener("search",(event) => {
@@ -107,7 +110,8 @@ const palabras = []
 //------------------- Obtener pokemon ----------------
 function typePokemon() {
     return new Promise((resolve) => {
-        fetch("../mvcPokemon/controllers/categorias.read.php")
+        fetch("http://localhost/mvcPokemon/controllers/categorias.read.php")
+        // controllers\categorias.read.php
             .then(Response => Response.json())
             .then(data => {
                 data.forEach(element => {
@@ -117,6 +121,7 @@ function typePokemon() {
             })
     })
 }
+
 // ---------------------IMG - Categorias -----------------
 function imagenC(name){
     const imageMap = {
@@ -143,6 +148,7 @@ function imagenC(name){
       };
       return imageMap[name];
 }
+
 //--------------------- imprimir Pokemon ------------------
 function printCategorias() {
     typePokemon()
@@ -153,9 +159,9 @@ function printCategorias() {
                 if (index == 0) {
                     item += `<div class="carousel-item active">
                         <div class="col-md-2">
-                            <div class="card">
+                            <div class="card rounded-circle">
                                 <div class="card-img" >
-                                    <a onclick="urlLocal('${element.id}')" href="tipos.HTMl" >
+                                    <a class="text-center" onclick="urlLocal('${element.id}')" href="tipos.HTMl" >
                                         <img src="${imageUrl}"
                                             class="img-fluid">
                                     </a>
@@ -169,7 +175,7 @@ function printCategorias() {
                 } else {
                     item += `<div class="carousel-item">
                         <div class="col-md-2">
-                            <div class="card">
+                            <div class="card rounded-circle">
                                 <div class="card-img">
                                     <a onclick="urlLocal('${element.id}')" href="tipos.HTMl">
                                         <img src="${imageUrl}" class="img-fluid">
