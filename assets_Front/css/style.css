@@ -102,3 +102,40 @@
     text-shadow: -1px 0 #414D68, 0 1px #414D68, 1px 0 #414D68, 0 -1px #414D68, -2px 2px 0 #414D68, 2px 2px 0 #414D68, 1px 1px #414D68, 2px 2px #414D68, 3px 3px #414D68, 4px 4px #414D68, 5px 5px #414D68; 
     /*6px 6px #414D68, 7px 7px #414D68, 8px 8px #414D68, 9px 9px #414D68;*/
     }
+
+.overflow-auto {
+        overflow-y: auto;
+        max-height: 300px;
+}
+
+.ads{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.img-responsive {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+}
+.img-responsive2 {
+    width: fit-content;
+    height: fit-content;
+}
+
+.carrito-numero {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    color: white;
+    font-size: 12px;
+    border-radius: 50%;
+}

@@ -7,9 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="assets_Front/img/Squirtle.png">
     <title>pokeApi</title>
+
     <!-- Bootstrap 5.3  -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
 
     <!-- FontAwesome -->
     <script src="https://kit.fontawesome.com/6bf421ec3d.js" crossorigin="anonymous"></script>
@@ -17,9 +21,12 @@
     <link rel="stylesheet" href="assets_Front/css/style.css">
 </head>
 
-<body onload="printCategorias(), searchPokemon()">
+<body onload=" printCategorias(), searchPokemon() ,getPokemon()">
+
     <div class="container-fluid">
-        <div class="row bg-secondary fixed-top" style="height:100px;" >
+
+        <!-- Header -->
+        <div class="row bg-secondary fixed-top" style="height:100px;">
             <div class="col-2 d-flex align-items-center">
                 <h1 class="pokeapi mx-3"> Tienda Pokémon </h1>
             </div>
@@ -29,7 +36,7 @@
                         aria-expanded="false">
                         Categorias
                     </button>
-                    <ul class="dropdown-menu" id="pokemon-categoria">
+                    <ul class="dropdown-menu overflow-auto" id="pokemon-categoria">
                         <!-- contenido categorias -->
                     </ul>
                 </div>
@@ -42,27 +49,30 @@
             </div>
 
             <div class="col-1 bg-white d-flex align-items-center justify-content-center">
-                <button class="btn btn-outline-primary" ondrop="drop(event)" ondragover="allowDrop(event)" id="cartPokemon" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                    <i class=" fas fa-cart-shopping fa-shake"></i>
+                <button class="btn btn-outline-primary" ondrop="drop(event)" ondragover="allowDrop(event)"
+                    id="cartPokemon" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
+                    aria-controls="offcanvasRight" onclick="pintarCarrito()">
+                    <i class=" fas fa-cart-shopping fa-shake fa-2xl"></i>
+                    <span id="carrito-numero" class="carrito-numero">0</span>
                 </button>
             </div>
 
         </div>
+
+        <!-- occupies the space of the header -->
         <div class="row" style="height: 100px; ;">
-            <div class="col-12 bg-warning"></div>
+            <div class="col-12 bg-warning"> </div>
         </div>
+
+        <!-- Content 1-->
         <div class="row" style="height:300px;">
+            <!-- carousel -->
             <div class="col-8 bg-info BgCarousel">
                 <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-indicators">
-                        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0"
-                            class="active" aria-current="true" aria-label="Slide 1"></button>
-                        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1"
-                            aria-label="Slide 2"></button>
-                        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2"
-                            aria-label="Slide 3"></button>
-                    </div>
+
+                    <!-- Carousel-Ejem-Poke -->
                     <div class="carousel-inner">
+
                         <div class="carousel-item active">
                             <img src="assets_Front/img/Squirtle.png" class="d-block w-100" alt="..."
                                 style="height: 300px; object-position: top; object-fit: contain;">
@@ -74,6 +84,7 @@
                                     Hoja.</p>
                             </div>
                         </div>
+
                         <div class="carousel-item">
                             <img src="assets_Front/img/Eevee.png" class="d-block w-100" alt="..."
                                 style="height: 300px; object-position: top; object-fit: contain;">
@@ -83,6 +94,7 @@
                                     el Pokémon con más evoluciones posibles, con ocho.</p>
                             </div>
                         </div>
+
                         <div class="carousel-item">
                             <img src="assets_Front/img/Vaporeon.png" class="d-block w-100" alt="..."
                                 style="height: 300px; object-position: top; object-fit: contain;">
@@ -93,6 +105,7 @@
                             </div>
                         </div>
                     </div>
+
                     <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions"
                         data-bs-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -103,10 +116,18 @@
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Next</span>
                     </button>
+
                 </div>
             </div>
-            <div class="col-4 bg-dark"></div>
+
+            <!--  poke-Ads -->
+            <div class="col-4 bg-dark ads">
+                <img src="assets_Front/img/singulares.png" alt="Imagen" class="img-responsive">
+                <p class="text-white text-center">Podras Encontrar Pokemones Singulares A buen Precio</p>
+            </div>
         </div>
+
+        <!-- Carousel-Categories -->
         <div class="row">
             <div class="col-12 bg-warning">
                 <div class="container my-3 mt-5" id="featureContainer">
@@ -122,48 +143,78 @@
                                 </a>
                             </div>
                             <div class="carousel-inner" role="listbox" id="carouselCategorias">
-
+                                <!-- content-carousel -->
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row" style="height:280px;">
-            <div class="col-12 bg-info"></div>
+
+        <!-- content-Pokes -->
+        <div class="row">
+            <div id="pagination-container" class="mt-2">
+            </div>
+            <div id="pokemon-container">
+
+            </div>
         </div>
+
+        <!-- Balls -->
         <div class="row justify-content-between" style="height: 150px;">
-            <div class="col-5 bg-warning"></div>
-            <div class="col-5 bg-secondary"></div>
+
+            <div class="col-5 bg-warning ads">
+                <img src="assets_Front/img/masterball.png" alt="Imagen" width="10%">
+            </div>
+
+            <div class="col-2 bg-dark ads">
+                <img src="assets_Front/img/pokeball.png" alt="Imagen" class="img-responsive">
+            </div>
+
+            <div class="col-5 bg-secondary ads">
+                <img src="assets_Front/img/masterball1.png" alt="Imagen" width="10%">
+            </div>
         </div>
-        <div class="row bg-dark align-items-center" style="height: 500px;">
-            <div class="col-4  d-flex justify-content-center">
-                <div class="card" style="width: 18rem;">
+
+        <!-- poke por categorias -->
+        <div class="row mx-2 mt-5" id="tipos">
+            <div id="listPokemonCategoria" class="row mx-2">
+
+            </div>
+        </div>
+
+        <!-- Devlopers -->
+        <div class="row bg-dark align-items-center p-5">
+
+            <div class="col-4 d-flex justify-content-center">
+                <div class="card">
                     <img src="https://www.w3schools.com/bootstrap4/img_avatar3.png" class="card-img-top" alt="...">
                     <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
+                        <h5 class="card-title">Developer</h5>
                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of
                             the card's content.</p>
                         <a href="#" class="btn btn-primary">Go somewhere</a>
                     </div>
                 </div>
             </div>
+
             <div class="col-4 d-flex justify-content-center">
-                <div class="card" style="width: 18rem;">
+                <div class="card">
                     <img src="https://www.w3schools.com/bootstrap4/img_avatar1.png" class="card-img-top" alt="...">
                     <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
+                        <h5 class="card-title">Designer</h5>
                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of
                             the card's content.</p>
                         <a href="#" class="btn btn-primary">Go somewhere</a>
                     </div>
                 </div>
             </div>
+
             <div class="col-4 d-flex justify-content-center">
-                <div class="card" style="width: 18rem;">
+                <div class="card">
                     <img src="https://www.w3schools.com/bootstrap4/img_avatar6.png" class="card-img-top" alt="...">
                     <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
+                        <h5 class="card-title">Manager</h5>
                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of
                             the card's content.</p>
                         <a href="#" class="btn btn-primary">Go somewhere</a>
@@ -171,45 +222,77 @@
                 </div>
             </div>
         </div>
-        <div class="row" style="height: 300px;">
-            <div class="col-12 bg-danger">
+
+        <!-- Footer -->
+        <div class="row">
+                <footer class="bg-dark text-white py-4">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <h5>Redes Sociales</h5>
+                                <div class="d-flex">
+                                    <a href="https://www.facebook.com/" class="me-3">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                    <a href="https://twitter.com/" class="me-3">
+                                        <i class="fab fa-twitter"></i>
+                                    </a>
+                                    <a href="https://www.instagram.com/" class="me-3">
+                                        <i class="fab fa-instagram"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <h5>@By:JDC</h5>
+                                <div class="d-flex justify-content-end">
+                                    <img src=".//assets_Front/img/balls.jpg" alt="Logo Pokémon" class="me-3"
+                                        style="max-width: 400px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+        </div>
+
+        <!-- OFF CANVAS CARRITO -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasRightLabel">Carrito Pokemon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body" id="contenidoCarrito">
+                <!-- aqui va el contenido del carrito -->
+            </div>
+            <div class="offcanvas-bottom text-center">
+                <button type="button" class="btn btn-danger mx-2" onclick="limpiarCarrito()">
+                    Limpiar Carrito
+                </button>
+                $ <label for="" id="total"></label>
             </div>
         </div>
 
-        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
-            aria-controls="offcanvasRight">Toggle right offcanvas</button>
-    
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasRightLabel">Offcanvas right</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                
-            </div>
-        </div>
-        
-        
-        <div class="card mb-3 mx-3" style="max-width: 540px;" draggable="true" ondragstart="drag(event)" id="cardPokemon">
-            <div class="row g-0">
-                <div class="col-md-4">
-                <a onclick="detallePokemon('${element.pokemon.url}')" href="detallePokemon33.html">
-                    <img id="imgPokemon" src="assets_Front/img/Eevee.png" class="img-fluid rounded-start" alt="...">
-                </a>
-                </div>
-                <div class="col-md-8">
-                    <div class="card-body">
-                        <h5 class="card-title text-center text-info text-uppercase">${element.pokemon.name}</h5>
-                        <p class="card-text" id="desc${element.pokemon.name}"> evee</p>
-                        <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fs-1" id="exampleModalLabel">Detalle PokeProducto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div id="detallePokemon" class="p-3">
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
             </div>
         </div>
 
 
-    </div>
-    <script src="assets_Front/js/script.js"></script>
+        <script src="assets_Front/js/script.js"></script>
 </body>
 
 </html>
