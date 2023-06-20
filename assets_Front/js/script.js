@@ -149,7 +149,7 @@ function imagenC(name) {
     return imageMap[name];
 }
 
-//--------------------- imprimir Pokemon ------------------
+//--------------------- imprimir Categorias ------------------
 function printCategorias() {
     typePokemon()
         .then((_response) => {
@@ -244,7 +244,7 @@ async function getPokemon() {
         </div>
       `;
         rowContent += card;
-        
+
         if ((index + 1) % 4 === 0 || index === data.length - 1) {
             rowContent += "</div>"; // Cerrar la fila actual
 
@@ -311,67 +311,52 @@ function createPagination(totalPokemons) {
 
 // ----------- Traer los pokemon segun la caetgoria ---------
 const pokemones = []
-function loadPokemon() {
-    return new Promise((resolve) => {
-        let idCat = localStorage.categoria
-        fetch('http://localhost/mvcPokemon/controllers/productos.readCat.php?categoria=' + idCat)
-            .then(Response => Response.json())
-            .then(data => {
-                data.forEach(element => {
-                    pokemones.push(element);
-                    // datosPokemon(element.id)
-                    resolve("Ok")
-                });
-            })
-    })
-}
 
-async function printPokemones() {
+async function loadPokemon() {
     try {
-        const response = await loadPokemon();
-        let lista = "";
-        const container = document.getElementById("listPokemonCategoria");
-        container.innerHTML = "";
-        const columnClass = "col-md-6"; // Nueva clase para mostrar dos productos por columna
-
-        for (let i = 0; i < pokemones.length; i++) {
-            const element = pokemones[i];
-            const isFirstColumn = i % 2 === 0;
-
-            // Agregar clase para determinar si es la primera columna o la segunda
-            const columnStyleClass = isFirstColumn ? "" : "ms-md-auto";
-
-            lista += `
-            <div class="card mb-3 ${columnClass} ${columnStyleClass}" style="max-width: 540px;" draggable="true" ondragstart="drag(event)" id="${element.nombrePro}">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="${element.urlFoto}" class="img-fluid rounded-start" alt="..." id="${element.nombrePro}">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title text-uppercase">${element.nombrePro}</h5>
-                            <p class="card-text">Categoría: ${element.categoria}</p>
-                            <p class="card-text">Precio: $${element.precioPro}</p>
-                            <button type="button" class="btn btn-secondary" onclick="getDetallePokemon('${element.id}')" data-bs-toggle="modal" data-bs-target="#exampleModal">Mas Detalles</button>
-                            <button class="btn btn-primary">Añadir al Carrito</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            `;
-
-            // Agregar clearfix para limpiar las columnas después de cada par de productos
-            if (!isFirstColumn || i === pokemones.length - 1) {
-                lista += `<div class="clearfix"></div>`;
-            }
-        }
-
-        container.innerHTML = lista;
+    pokemones.length = 0;
+      let idCat = localStorage.categoria;
+      const response = await fetch(`http://localhost/mvcPokemon/controllers/productos.readCat.php?categoria=${idCat}`);
+      const data = await response.json();
+      console.log(data);
+      data.forEach(element => {
+        pokemones.push(element);
+      });
     } catch (error) {
         console.log(error);
     }
-}
+  }
 
+async function printPokemones() {
+    await loadPokemon();
+    if (pokemones.length === 0) {
+        return alert('No hay Productos de esta Categoria Por el momento'); // No hacer nada si el arreglo está vacío
+      }
+    let lista = '';
+    console.log(pokemones);
+      pokemones.forEach((element, i) => {
+        lista += `
+          <div class="card mb-3 col-md-6" style="max-width: 540px;" draggable="true" ondragstart="drag(event)" id="${element.nombrePro}">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="${element.urlFoto}" class="img-fluid rounded-start" alt="..." id="${element.nombrePro}">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title text-uppercase">${element.nombrePro}</h5>
+                  <p class="card-text">Categoría: ${element.categoria}</p>
+                  <p class="card-text">Precio: $${element.precioPro}</p>
+                  <button type="button" class="btn btn-secondary" onclick="getDetallePokemon('${element.id}')" data-bs-toggle="modal" data-bs-target="#exampleModal">Mas Detalles</button>
+                  <button class="btn btn-primary" onclick="agregarAlCarrito(${element.id})">Añadir al Carrito</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+  
+        document.getElementById('listPokemonCategoria').innerHTML = lista;
+      });
+  }
 
 function getDetallePokemon(idP) {
     fetch("http://localhost/mvcPokemon/controllers/productos.readId.php?id=" + idP)
@@ -412,10 +397,11 @@ function getDetallePokemon(idP) {
 
 // ------------Funciones del Carrito ---------------
 let p = [];
-async function agregarAlCarrito(elemento){
-    const response = await fetch('http://localhost/mvcPokemon/controllers/productos.readId.php?id='+elemento)
+
+async function agregarAlCarrito(elemento) {
+    const response = await fetch('http://localhost/mvcPokemon/controllers/productos.readId.php?id=' + elemento)
     const data = await response.json()
-    
+
     // Verificar si el producto ya está en el carrito
     const index = p.findIndex(producto => producto.id === data.id);
     if (index !== -1) {
@@ -429,18 +415,23 @@ async function agregarAlCarrito(elemento){
         // Si el producto no está en el carrito, agregarlo con cantidad 1
         data.cantidad = 1;
         p.push(data);
+
     }
 
     pintarCarrito();
 }
 
-function pintarCarrito(){
-    let card = "" 
+let productosCarrito = [];
+
+function pintarCarrito() {
+    let card = ""
     let total = 0;
+    productosCarrito = [];
+
     p.forEach(producto => {
         let precio = producto.precioPro * producto.cantidad
         total += precio;
-            card += `
+        card += `
             <div class="card mb-3">
                 <div class="row g-0">
                     <div class="col-md-4">
@@ -452,21 +443,31 @@ function pintarCarrito(){
                             <p class="card-text"><small class="text-body-secondary">diponibles: ${producto.cantidadPro}</small></p>
                             <div class="d-flex">
                                 <label class="card-text me-2">Cantidad:</label>
-                                <input type="number" class="form-control" min="0" max="${producto.cantidadPro}" value="${producto.cantidad}" oninput="actualizarPrecio(${producto.id}, this.value)">
+                                <input type="number" class="form-control" min="0" max="${producto.cantidadPro}" value="${producto.cantidad}" oninput="actualizarPrecio(${producto.id}, this.value)" id="c">
                             </div>
                             <div">
-                                <label class="card-text me-2" id="precio-${producto.id}" >Precio: $${precio}</label>
+                                <label class="card-text me-2" id="precio-${producto.id}">Precio: $${precio}</label>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            ` 
+            `
         document.getElementById('contenidoCarrito').innerHTML = card
-        document.getElementById('total').innerHTML = total
+        document.getElementById('total').innerHTML = total 
+        
+        const productoCarrito = crearProductoCarrito(producto);
+        productosCarrito.push(productoCarrito);
     });
     let c = p.length
     actualizarNumeroCarrito(c)
+}
+
+function crearProductoCarrito(producto) {
+
+    return {
+        producto:producto,
+    };
 }
 
 function actualizarPrecio(id, cantidad) {
@@ -474,8 +475,7 @@ function actualizarPrecio(id, cantidad) {
     if (producto) {
         producto.cantidad = parseInt(cantidad);
         const precio = producto.precioPro * producto.cantidad;
-        document.getElementById(`precio-${producto.id}`).innerHTML = precio;
-        document.getElementById('total').innerHTML = total
+        document.getElementById(`precio-${producto.id}`).innerHTML = 'Precio: $'+precio;
         actualizarTotal();
     }
 }
@@ -501,9 +501,25 @@ function actualizarNumeroCarrito(cantidad) {
     }
 }
 
-function limpiarCarrito(){
+function limpiarCarrito() {
     p = [];
     document.getElementById('contenidoCarrito').innerHTML = "";
     document.getElementById('total').innerHTML = "";
     pintarCarrito();
 }
+
+function realizarCompra() {
+    if (productosCarrito.length === 0) {
+        alert('No hay produtos en el carrito')
+    } else {
+        console.log(productosCarrito);
+        limpiarCarrito();
+    }
+}
+
+function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }

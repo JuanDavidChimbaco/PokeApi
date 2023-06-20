@@ -161,7 +161,7 @@
         </div>
 
         <!-- Balls -->
-        <div class="row justify-content-between" style="height: 150px;">
+        <div class="row justify-content-between" style="height: 150px;" id="tipos">
 
             <div class="col-5 bg-warning ads">
                 <img src="assets_Front/img/masterball.png" alt="Imagen" width="10%">
@@ -177,7 +177,7 @@
         </div>
 
         <!-- poke por categorias -->
-        <div class="row mx-2 mt-5" id="tipos">
+        <div class="row mx-2 mt-5">
             <div id="listPokemonCategoria" class="row mx-2">
 
             </div>
@@ -225,33 +225,33 @@
 
         <!-- Footer -->
         <div class="row">
-                <footer class="bg-dark text-white py-4">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <h5>Redes Sociales</h5>
-                                <div class="d-flex">
-                                    <a href="https://www.facebook.com/" class="me-3">
-                                        <i class="fab fa-facebook-f"></i>
-                                    </a>
-                                    <a href="https://twitter.com/" class="me-3">
-                                        <i class="fab fa-twitter"></i>
-                                    </a>
-                                    <a href="https://www.instagram.com/" class="me-3">
-                                        <i class="fab fa-instagram"></i>
-                                    </a>
-                                </div>
+            <footer class="bg-dark text-white py-4">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h5>Redes Sociales</h5>
+                            <div class="d-flex">
+                                <a href="https://www.facebook.com/" class="me-3">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="https://twitter.com/" class="me-3">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="https://www.instagram.com/" class="me-3">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
                             </div>
-                            <div class="col-lg-6">
-                                <h5>@By:JDC</h5>
-                                <div class="d-flex justify-content-end">
-                                    <img src=".//assets_Front/img/balls.jpg" alt="Logo Pokémon" class="me-3"
-                                        style="max-width: 400px;">
-                                </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <h5>@By:JDC</h5>
+                            <div class="d-flex justify-content-end">
+                                <img src=".//assets_Front/img/balls.jpg" alt="Logo Pokémon" class="me-3"
+                                    style="max-width: 400px;">
                             </div>
                         </div>
                     </div>
-                </footer>
+                </div>
+            </footer>
         </div>
 
         <!-- OFF CANVAS CARRITO -->
@@ -267,7 +267,10 @@
                 <button type="button" class="btn btn-danger mx-2" onclick="limpiarCarrito()">
                     Limpiar Carrito
                 </button>
-                $ <label for="" id="total"></label>
+                <label for="">Total:</label><label for="" id="total" class="btn btn-dark"></label>
+                <button type="button" class="btn btn-primary mx-2" onclick="realizarCompra()">
+                    Realizar Compra
+                </button>
             </div>
         </div>
 
@@ -291,7 +294,10 @@
             </div>
         </div>
 
-
+        <!-- boton para ajustar vista -->
+        <a href="#" class="scroll-to-top" onclick="scrollToTop()">
+            <i class="fas fa-arrow-up"></i>
+        </a>
         <script src="assets_Front/js/script.js"></script>
 </body>
 
