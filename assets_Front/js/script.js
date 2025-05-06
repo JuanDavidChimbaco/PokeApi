@@ -1,76 +1,454 @@
-// Funciones del script del dragg and drop 
+/**
+ * Funciones de Drag and Drop
+ * -------------------------
+ * Estas funciones manejan la funcionalidad de arrastrar y soltar Pokémon al carrito.
+ */
+
+/**
+ * Permite el evento de soltar en el área del carrito
+ * @param {DragEvent} ev - Evento de arrastre
+ */
 function allowDrop(ev) {
     ev.preventDefault();
+    ev.currentTarget.classList.add('drag-over');
 }
 
+/**
+ * Maneja el evento cuando un elemento entra en el área del carrito
+ * @param {DragEvent} ev - Evento de arrastre
+ */
+function handleDragEnter(ev) {
+    ev.preventDefault();
+    ev.currentTarget.classList.add('drag-over');
+}
+
+/**
+ * Maneja el evento cuando un elemento sale del área del carrito
+ * @param {DragEvent} ev - Evento de arrastre
+ */
+function handleDragLeave(ev) {
+    ev.currentTarget.classList.remove('drag-over');
+}
+
+/**
+ * Inicia el arrastre de un Pokémon
+ * @param {DragEvent} ev - Evento de arrastre
+ */
 function drag(ev) {
-    let namePokemon;
-    switch (ev.target.nodeName) {
-        case "DIV":
-            namePokemon = ev.target.id.toLowerCase();
-            break;
-        case "IMG":
-            namePokemon = ev.target.id.toLowerCase();
-            break;
-    }
-    ev.dataTransfer.setData("name", namePokemon);
+    const target = ev.target.closest('.pokemon-card');
+    if (!target) return;
+    
+    const pokemonId = target.getAttribute('data-pokemon-id');
+    ev.dataTransfer.setData('pokemonId', pokemonId);
+    target.classList.add('dragging');
 }
 
+/**
+ * Maneja el evento cuando se suelta un Pokémon en el carrito
+ * @param {DragEvent} ev - Evento de arrastre
+ */
 function drop(ev) {
     ev.preventDefault();
-    var data = ev.dataTransfer.getData("name");
-    console.log(data);
-    backInfoPokemon(data)
-}
-//   
-function backInfoPokemon(nombre) {
-    fetch(`https://pokeapi.co/api/v2/pokemon/${nombre}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-        })
+    ev.currentTarget.classList.remove('drag-over');
+    
+    const pokemonId = ev.dataTransfer.getData('pokemonId');
+    if (pokemonId) {
+        agregarAlCarrito(parseInt(pokemonId));
+    }
 }
 
-// ----------------- Funcionamiento carrusel multiple ------------------
-function carrusel() {
-    let myCarousel = document.querySelectorAll('#featureContainer .carousel .carousel-item');
-    myCarousel.forEach((el) => {
-        const minPerSlide = 4
-        let next = el.nextElementSibling
-        for (var i = 1; i < minPerSlide; i++) {
-            if (!next) {
-                // wrap carousel by using first child
-                next = myCarousel[0]
-            }
-            let cloneChild = next.cloneNode(true)
-            el.appendChild(cloneChild.children[0])
-            next = next.nextElementSibling
+/**
+ * Obtiene información detallada de un Pokémon desde la API
+ * @param {string} nombre - Nombre del Pokémon
+ * @returns {Promise<void>}
+ */
+async function backInfoPokemon(nombre) {
+    try {
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${nombre}`);
+        if (!response.ok) {
+            throw new Error(`Error al obtener datos: ${response.status}`);
         }
-    })
+        const data = await response.json();
+        console.log('Información del Pokémon:', data);
+    } catch (error) {
+        console.error('Error:', error);
+    }
 }
 
-//-------------------Funcion de Autocompletado ------------------
-function autoCompletePokemon() {
-    fetch(`https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0`)
-        .then(response => response.json())
-        .then(data => {
-            let textoBuscar = document.getElementById("txtBuscar").value
-            if (textoBuscar.length >= 2) {
-                let lista = `<div class='list-group'>`
-                let filtroPokemon = data.results.filter(filtrarPokemon)
-                filtroPokemon.forEach(element => {
-                    iconoPokemon(element.url)
-                    lista += `<a onclick="detallePokemon('${element.url}')" href='detallePokemon33.html' class='list-group-item list-group-item-action'>${element.name} <img id="icono${element.name}" style="width:20%"></a>`
-                });
-                lista += `</div>`
-                document.getElementById("listaPokemon").innerHTML = lista
-                document.getElementById("listaPokemon").style = `position:absolute;top:70px;right:210px;width:30%;z-index:2000; height:600px;overflow:auto;`
-            }
-            if (textoBuscar == 0) {
-                document.getElementById("listaPokemon").innerHTML = ""
-            }
-        })
+/**
+ * Carrusel
+ * -------
+ * Funciones relacionadas con el carrusel de categorías
+ */
 
+/**
+ * Inicializa el carrusel de categorías con múltiples elementos por slide
+ */
+function carrusel() {
+    const myCarousel = document.querySelectorAll('#featureContainer .carousel .carousel-item');
+    const minPerSlide = 4;
+
+    myCarousel.forEach((el) => {
+        let next = el.nextElementSibling;
+        let itemsToAdd = [];
+
+        for (let i = 1; i < minPerSlide; i++) {
+            if (!next) {
+                next = myCarousel[0];
+            }
+            itemsToAdd.push(next);
+            next = next.nextElementSibling;
+        }
+
+        itemsToAdd.forEach((item) => {
+            const cloneChild = item.cloneNode(true);
+            el.appendChild(cloneChild.children[0]);
+        });
+    });
+}
+
+/**
+ * Búsqueda y Autocompletado
+ * ------------------------
+ */
+
+/**
+ * Realiza la búsqueda de Pokémon con autocompletado
+ * @returns {Promise<void>}
+ */
+async function autoCompletePokemon() {
+    const searchInput = document.getElementById("txtBuscar");
+    const searchText = searchInput.value.toLowerCase();
+    const listaPokemon = document.getElementById("listaPokemon");
+
+    if (searchText.length < 2) {
+        listaPokemon.innerHTML = "";
+        return;
+    }
+
+    try {
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0`);
+        if (!response.ok) throw new Error('Error en la búsqueda');
+        
+        const data = await response.json();
+        const filteredPokemon = data.results.filter(pokemon => 
+            pokemon.name.includes(searchText)
+        );
+
+        if (filteredPokemon.length === 0) {
+            listaPokemon.innerHTML = "<div class='list-group-item'>No se encontraron resultados</div>";
+            return;
+        }
+
+        const lista = filteredPokemon.map(pokemon => `
+            <a onclick="detallePokemon('${pokemon.url}')" 
+               href='detallePokemon33.html' 
+               class='list-group-item list-group-item-action'>
+                ${pokemon.name} 
+                <img id="icono${pokemon.name}" 
+                     class="pokemon-icon" 
+                     alt="${pokemon.name}">
+            </a>
+        `).join('');
+
+        listaPokemon.innerHTML = `<div class='list-group'>${lista}</div>`;
+        listaPokemon.style.cssText = `
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            z-index: 2000;
+            max-height: 400px;
+            overflow: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        `;
+
+        filteredPokemon.forEach(pokemon => loadPokemonIcon(pokemon.url, pokemon.name));
+    } catch (error) {
+        console.error('Error en la búsqueda:', error);
+        listaPokemon.innerHTML = "<div class='list-group-item text-danger'>Error al buscar Pokémon</div>";
+    }
+}
+
+/**
+ * Carga el icono de un Pokémon
+ * @param {string} url - URL del Pokémon
+ * @param {string} name - Nombre del Pokémon
+ * @returns {Promise<void>}
+ */
+async function loadPokemonIcon(url, name) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Error al cargar el icono');
+        
+        const data = await response.json();
+        const iconElement = document.getElementById(`icono${name}`);
+        if (iconElement) {
+            iconElement.src = data.sprites.other["official-artwork"].front_default;
+            iconElement.style.width = '20%';
+        }
+    } catch (error) {
+        console.error(`Error al cargar icono de ${name}:`, error);
+    }
+}
+
+/**
+ * Gestión de Categorías
+ * --------------------
+ */
+
+/**
+ * Obtiene las categorías de Pokémon desde el servidor
+ * @returns {Promise<Array>} Array de categorías
+ */
+async function getPokemonCategories() {
+    const API_BASE_URL = "http://localhost/mvcPokemon/controllers";
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
+    if (window._pokemonCategoriesCache &&
+        window._pokemonCategoriesCache.timestamp &&
+        (Date.now() - window._pokemonCategoriesCache.timestamp < CACHE_DURATION)) {
+        console.log("Devolviendo categorías desde caché");
+        return window._pokemonCategoriesCache.data;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/categorias.read.php`);
+        if (!response.ok) {
+            throw new Error(`Error en la petición: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        window._pokemonCategoriesCache = {
+            data: data,
+            timestamp: Date.now()
+        };
+
+        return data;
+    } catch (error) {
+        console.error("Error al obtener categorías de Pokémon:", error);
+        throw error;
+    }
+}
+
+/**
+ * Imprime las categorías en el carrusel
+ * @returns {Promise<void>}
+ */
+async function printCategories() {
+    try {
+        const categorias = await getPokemonCategories();
+        let item = "";
+        categorias.forEach((element, index) => {
+            const imageUrl = imagenC(element.nombreCat);
+            if (index == 0) {
+                item += `<div class="carousel-item active">
+                    <div class="col-md-3">
+                        <div class="categoria-card">
+                            <a class="text-center" onclick="urlLocal('${element.id}')" href="#pokemon-container">
+                                <img src="${imageUrl}" class="categoria-img" alt="${element.nombreCat}">
+                                <div class="categoria-title">${element.nombreCat}</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>`
+            } else {
+                item += `<div class="carousel-item">
+                    <div class="col-md-3">
+                        <div class="categoria-card">
+                            <a class="text-center" onclick="urlLocal('${element.id}')" href="#pokemon-container">
+                                <img src="${imageUrl}" class="categoria-img" alt="${element.nombreCat}">
+                                <div class="categoria-title">${element.nombreCat}</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>`
+            }
+        });
+        document.getElementById("carouselCategorias").innerHTML = item;
+        carrusel();
+
+        let itemMenu = "";
+        categorias.forEach((element) => {
+            itemMenu += `
+            <li>
+                <a onclick="urlLocal('${element.id}')" href="#pokemon-container" class="dropdown-item">
+                    ${element.nombreCat}
+                </a>
+            </li>`;
+        });
+        document.getElementById("pokemon-categoria").innerHTML = itemMenu;
+        
+    } catch (error) {
+        console.error("Error al imprimir categorías:", error);
+        throw error;
+    }
+}
+
+/**
+ * Gestión del Carrito
+ * -----------------
+ */
+
+/**
+ * Agrega un Pokémon al carrito
+ * @param {number} elemento - ID del Pokémon
+ * @returns {Promise<void>}
+ */
+async function agregarAlCarrito(elemento) {
+    const cantidadInput = document.getElementById('cantidadDetalle');
+    const cantidad = cantidadInput ? parseInt(cantidadInput.value) : 1;
+
+    const response = await fetch('http://localhost/mvcPokemon/controllers/productos.readId.php?id=' + elemento)
+    const data = await response.json()
+
+    const index = p.findIndex(producto => producto.id === data.id);
+    if (index !== -1) {
+        const nuevaCantidad = p[index].cantidad + cantidad;
+        if (nuevaCantidad <= data.cantidadPro) {
+            p[index].cantidad = nuevaCantidad;
+        } else {
+            p[index].cantidad = data.cantidadPro;
+            alert('Se ha alcanzado el límite de unidades disponibles');
+        }
+    } else {
+        if (cantidad <= data.cantidadPro) {
+            data.cantidad = cantidad;
+            p.push(data);
+        } else {
+            data.cantidad = data.cantidadPro;
+            p.push(data);
+            alert('Se ha ajustado la cantidad al máximo disponible');
+        }
+    }
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
+    if (modal) {
+        modal.hide();
+    }
+
+    const offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'));
+    offcanvas.show();
+
+    pintarCarrito();
+}
+
+/**
+ * Pinta el contenido del carrito
+ */
+function pintarCarrito() {
+    let card = "";
+    let total = 0;
+    productosCarrito = [];
+
+    if (p.length === 0) {
+        document.getElementById('contenidoCarrito').innerHTML = '<div class="text-center p-3">El carrito está vacío</div>';
+        document.getElementById('total').innerHTML = "$0";
+        actualizarNumeroCarrito(0);
+        return;
+    }
+
+    p.forEach(producto => {
+        let precio = producto.precioPro * producto.cantidad;
+        total += precio;
+        card += `
+            <div class="cart-item">
+                <div class="cart-item-image">
+                    <img src="${producto.urlFoto}" alt="${producto.nombrePro}">
+                </div>
+                <div class="cart-item-details">
+                    <h6 class="cart-item-title">${producto.nombrePro}</h6>
+                    <div class="cart-item-info">
+                        <span class="cart-item-price">$${producto.precioPro}</span>
+                        <span class="cart-item-stock">Stock: ${producto.cantidadPro}</span>
+                    </div>
+                    <div class="cart-item-controls">
+                        <div class="quantity-control">
+                            <button class="btn-quantity" onclick="actualizarCantidad(${producto.id}, ${producto.cantidad - 1})">-</button>
+                            <input type="number" class="form-control" min="1" max="${producto.cantidadPro}" 
+                                   value="${producto.cantidad}" onchange="actualizarCantidad(${producto.id}, this.value)">
+                            <button class="btn-quantity" onclick="actualizarCantidad(${producto.id}, ${producto.cantidad + 1})">+</button>
+                        </div>
+                        <div class="cart-item-total">
+                            <span>Total: $${precio}</span>
+                        </div>
+                    </div>
+                    <button class="btn-remove" onclick="eliminarDelCarrito(${producto.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        const productoCarrito = crearProductoCarrito(producto);
+        productosCarrito.push(productoCarrito);
+    });
+
+    document.getElementById('contenidoCarrito').innerHTML = card;
+    document.getElementById('total').innerHTML = `$${total}`;
+    actualizarNumeroCarrito(p.length);
+}
+
+/**
+ * Actualiza la cantidad de un producto en el carrito
+ * @param {number} id - ID del producto
+ * @param {number} nuevaCantidad - Nueva cantidad
+ */
+function actualizarCantidad(id, nuevaCantidad) {
+    const producto = p.find(p => p.id === id);
+    if (producto) {
+        nuevaCantidad = parseInt(nuevaCantidad);
+        if (nuevaCantidad >= 1 && nuevaCantidad <= producto.cantidadPro) {
+            producto.cantidad = nuevaCantidad;
+            pintarCarrito();
+        } else if (nuevaCantidad > producto.cantidadPro) {
+            producto.cantidad = producto.cantidadPro;
+            alert('Se ha alcanzado el límite de unidades disponibles');
+            pintarCarrito();
+        }
+    }
+}
+
+/**
+ * Elimina un producto del carrito
+ * @param {number} id - ID del producto a eliminar
+ */
+function eliminarDelCarrito(id) {
+    p = p.filter(producto => producto.id !== id);
+    pintarCarrito();
+    
+    if (p.length === 0) {
+        const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasRight'));
+        if (offcanvas) {
+            offcanvas.hide();
+        }
+    }
+}
+
+/**
+ * Actualiza el número de items en el carrito
+ * @param {number} cantidad - Cantidad de items
+ */
+function actualizarNumeroCarrito(cantidad) {
+    const carritoNumero = document.getElementById("carrito-numero");
+    carritoNumero.innerText = cantidad.toString();
+    carritoNumero.style.display = cantidad > 0 ? "block" : "none";
+}
+
+/**
+ * Limpia el carrito
+ */
+function limpiarCarrito() {
+    p = [];
+    document.getElementById('contenidoCarrito').innerHTML = "";
+    document.getElementById('total').innerHTML = "";
+    pintarCarrito();
+    
+    const cantidadInput = document.getElementById('cantidadDetalle');
+    if (cantidadInput) {
+        cantidadInput.value = 1;
+    }
 }
 
 //-------------------Funcion Filtrar Pokemon------------------
@@ -80,18 +458,9 @@ function filtrarPokemon(element) {
     return nombre.includes(textoBuscar.toLowerCase())
 }
 
-//------------------Funcion Icono Pokemon---------------------
-function iconoPokemon(urlPokemon) {
-    fetch(urlPokemon)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById(`icono${data.name}`).src = data.sprites.other["official-artwork"].front_default
-        })
-}
-
 //___________________Guardar en LocalStorage Detalle Pokemon---------------------------
 function detallePokemon(urlPokemon) {
-    localStorage.urlDetalle = urlPokemon
+    localStorage.setItem('urlDetalle', urlPokemon);
 }
 
 //-----------------Funcion Evento Boton del Input search---------------------------------------
@@ -107,7 +476,7 @@ function searchPokemon() {
 const categorias = []
 const palabras = []
 
-//------------------- Obtener pokemon ----------------
+//------------------- Obtener Las Categorias de los Pokemon -------------------
 function typePokemon() {
     return new Promise((resolve) => {
         fetch("http://localhost/mvcPokemon/controllers/categorias.read.php")
@@ -120,6 +489,107 @@ function typePokemon() {
                 resolve("Categorias ok");
             })
     })
+}
+
+//--------------------- imprimir Categorias ------------------
+/**
+ * Imprime las categorías de Pokémon en el carrusel de la página principal.
+ * 
+ * Esta función asíncrona obtiene todas las categorías de Pokémon disponibles
+ * a través de la función getPokemonCategories() y las muestra en un carrusel.
+ * 
+ * El proceso incluye:
+ * 1. Obtener los datos de las categorías desde la API o caché
+ * 2. Generar el HTML para cada categoría con su imagen correspondiente
+ * 3. Marcar la primera categoría como activa en el carrusel
+ * 4. Insertar el HTML generado en el elemento con ID "carouselCategorias"
+ * 5. Inicializar el comportamiento del carrusel mediante la función carrusel()
+ * 6. Actualizar el menú desplegable de categorías si es necesario
+ * 
+ * Cada categoría se muestra como una tarjeta circular con una imagen representativa
+ * y tiene un evento onclick que filtra los Pokémon por esa categoría.
+ * 
+ * @returns {Promise<void>} No retorna valor, pero actualiza el DOM con las categorías
+ * @throws {Error} Propaga cualquier error que ocurra durante la obtención de datos
+ */
+
+async function printPokemones() {
+    await loadPokemon();
+}
+
+function getDetallePokemon(idP) {
+    fetch("http://localhost/mvcPokemon/controllers/productos.readId.php?id=" + idP)
+        .then(response => response.json())
+        .then(data => {
+            const detallePokemon = document.getElementById("detallePokemon");
+            detallePokemon.innerHTML = `
+                <div class="pokemon-detail-container">
+                    <div class="row g-0">
+                        <!-- Imagen del Pokémon -->
+                        <div class="col-md-5 pokemon-detail-image">
+                            <img src="${data.urlFoto}" class="img-fluid" alt="${data.nombrePro}">
+                        </div>
+                        
+                        <!-- Información del Pokémon -->
+                        <div class="col-md-7 pokemon-detail-info">
+                            <div class="pokemon-header">
+                                <h3 class="pokemon-name">${data.nombrePro.toUpperCase()}</h3>
+                                <span class="pokemon-type badge bg-${getTypeColor(data.categoriaP)}">${data.categoriaP}</span>
+                            </div>
+                            
+                            <div class="pokemon-stats">
+                                <div class="stat-item">
+                                    <i class="fas fa-tag"></i>
+                                    <span class="stat-label">Precio:</span>
+                                    <span class="stat-value">$${data.precioPro}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-box"></i>
+                                    <span class="stat-label">Disponibles:</span>
+                                    <span class="stat-value">${data.cantidadPro} unidades</span>
+                                </div>
+                            </div>
+
+                            <div class="pokemon-actions mt-3">
+                                <div class="d-flex gap-2">
+                                    <div class="input-group input-group-sm" style="max-width: 150px;">
+                                        <span class="input-group-text">Cantidad</span>
+                                        <input type="number" class="form-control" min="1" max="${data.cantidadPro}" value="1" id="cantidadDetalle">
+                                    </div>
+                                    <button class="btn btn-primary flex-grow-1" onclick="agregarAlCarrito(${data.id})">
+                                        <i class="fas fa-cart-plus"></i> Agregar al Carrito
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+}
+
+// Función auxiliar para obtener el color según el tipo de Pokémon
+function getTypeColor(type) {
+    const typeColors = {
+        'normal': 'secondary',
+        'fighting': 'danger',
+        'flying': 'info',
+        'poison': 'purple',
+        'ground': 'warning',
+        'rock': 'secondary',
+        'bug': 'success',
+        'ghost': 'dark',
+        'steel': 'secondary',
+        'fire': 'danger',
+        'water': 'primary',
+        'grass': 'success',
+        'electric': 'warning',
+        'psychic': 'purple',
+        'ice': 'info',
+        'dragon': 'primary',
+        'dark': 'dark',
+        'fairy': 'pink'
+    };
+    return typeColors[type.toLowerCase()] || 'primary';
 }
 
 // ---------------------IMG - Categorias -----------------
@@ -149,64 +619,10 @@ function imagenC(name) {
     return imageMap[name];
 }
 
-//--------------------- imprimir Categorias ------------------
-function printCategorias() {
-    typePokemon()
-        .then((_response) => {
-            let item = ""
-            categorias.forEach((element, index) => {
-                const imageUrl = imagenC(element.nombreCat);
-                if (index == 0) {
-                    item += `<div class="carousel-item active">
-                        <div class="col-md-2">
-                            <div class="card rounded-circle">
-                                <div class="card-img" >
-                                    <a class="text-center" onclick="urlLocal('${element.id}') , printPokemones()" id="toggle-link" href="#tipos">
-                                        <img src="${imageUrl}"
-                                            class="img-fluid">
-                                    </a>
-                                </div>
-                                <div class="card-img-overlays">
-                                    ${element.nombreCat}
-                                </div>
-                            </div>
-                        </div>
-                    </div>`
-                } else {
-                    item += `<div class="carousel-item">
-                        <div class="col-md-2">
-                            <div class="card rounded-circle">
-                                <div class="card-img">
-                                    <a class="text-center" onclick="urlLocal('${element.id}'),printPokemones()" id="toggle-link" type="button" href="#tipos">
-                                        <img src="${imageUrl}" class="img-fluid">
-                                    </a>
-                                </div>
-                                <div class="card-img-overlays">${element.nombreCat}</div>
-                            </div>
-                        </div>
-                    </div>`
-                }
-            });
-            document.getElementById("carouselCategorias").innerHTML = item
-            carrusel()
-        })
-        .then((_response) => {
-            let item = ""
-            categorias.forEach((element) => {
-                item += `
-                <li>
-                    <a onclick="urlLocal('${element.id}'),printPokemones()" href="#tipos" class="dropdown-item">
-                        ${element.nombreCat}
-                    </a>
-                </li>`
-            });
-            document.getElementById("pokemon-categoria").innerHTML = item;
-        })
-}
-
 //--------------- Guardar la url en el LocalStorage ----------------
 function urlLocal(id) {
     localStorage.setItem("categoria", id);
+    loadPokemon(); // Cargar los Pokémon de la categoría seleccionada
 }
 
 const pokemonsPerPage = 8;
@@ -224,21 +640,33 @@ async function getPokemon() {
 
     data.forEach((element, index) => {
         if (index % 4 === 0) {
-            rowContent += "<div class='row'>"; // Abrir una nueva fila
+            rowContent += "<div class='row g-2'>";
         }
         const card = `
-        <div class="col-md-3" draggable="true" ondragstart="drag(event)" id="${element.nombrePro}">
-          <div class="card text-center">
-            <img src="${element.urlFoto}" class="card-img-top" alt="${element.nombrePro}" id="${element.nombrePro}">
-            <div class="card-body">
-              <h5 class="card-title">${element.nombrePro}</h5>
-              <p class="card-text">${element.categoria}</p>
-              <p class="card-text">$${element.precioPro}</p>
-              <!--<div class="d-flex">
-              <label class="mx-3">Cantidad: </label>
-              <input type="number" max="${element.cantidadPro}" min="0" id="cantidad" class="form-control">
-              </div>-->
-              <a href="#" class="btn btn-primary mt-2" id="BtnAgregar" onclick="agregarAlCarrito(${element.id})">Agregar al Carrito</a>
+        <div class="col-md-3">
+          <div class="card h-100 pokemon-card" 
+               draggable="true" 
+               ondragstart="drag(event)" 
+               data-pokemon-id="${element.id}">
+            <div class="card-img-container">
+              <img src="${element.urlFoto}" class="card-img-top pokemon-img" alt="${element.nombrePro}">
+            </div>
+            <div class="card-body p-2">
+              <h6 class="card-title mb-1">${element.nombrePro}</h6>
+              <p class="card-text mb-1"><small class="text-muted">${element.categoria}</small></p>
+              <p class="card-text mb-2 fw-bold">$${element.precioPro}</p>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary flex-grow-1" 
+                        onclick="getDetallePokemon('${element.id}')" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#exampleModal">
+                  <i class="fas fa-info-circle"></i> Detalles
+                </button>
+                <button class="btn btn-sm btn-primary flex-grow-1" 
+                        onclick="agregarAlCarrito(${element.id})">
+                  <i class="fas fa-cart-plus"></i> Agregar
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -246,10 +674,9 @@ async function getPokemon() {
         rowContent += card;
 
         if ((index + 1) % 4 === 0 || index === data.length - 1) {
-            rowContent += "</div>"; // Cerrar la fila actual
-
+            rowContent += "</div>";
             cardContent += rowContent;
-            rowContent = ""; // Reiniciar el contenido de la fila
+            rowContent = "";
         }
     });
 
@@ -309,203 +736,93 @@ function createPagination(totalPokemons) {
     }
 }
 
-// ----------- Traer los pokemon segun la caetgoria ---------
-const pokemones = []
-
+// ----------- Traer los pokemon segun la categoria ---------
 async function loadPokemon() {
     try {
-    pokemones.length = 0;
-      let idCat = localStorage.categoria;
-      const response = await fetch(`http://localhost/mvcPokemon/controllers/productos.readCat.php?categoria=${idCat}`);
-      const data = await response.json();
-      console.log(data);
-      data.forEach(element => {
-        pokemones.push(element);
-      });
-    } catch (error) {
-        console.log(error);
-    }
-  }
+        let idCat = localStorage.categoria;
+        if (!idCat) {
+            // Si no hay categoría seleccionada, mostrar todos los Pokémon
+            getPokemon();
+            document.getElementById('btn-mostrar-todos').classList.add('d-none');
+            document.getElementById('categoria-actual').textContent = 'Todos los Pokémon';
+            return;
+        }
 
-async function printPokemones() {
-    await loadPokemon();
-    if (pokemones.length === 0) {
-        return alert('No hay Productos de esta Categoria Por el momento'); // No hacer nada si el arreglo está vacío
-      }
-    let lista = '';
-    console.log(pokemones);
-      pokemones.forEach((element, i) => {
-        lista += `
-          <div class="card mb-3 col-md-6" style="max-width: 540px;" draggable="true" ondragstart="drag(event)" id="${element.nombrePro}">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <img src="${element.urlFoto}" class="img-fluid rounded-start" alt="..." id="${element.nombrePro}">
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title text-uppercase">${element.nombrePro}</h5>
-                  <p class="card-text">Categoría: ${element.categoria}</p>
-                  <p class="card-text">Precio: $${element.precioPro}</p>
-                  <button type="button" class="btn btn-secondary" onclick="getDetallePokemon('${element.id}')" data-bs-toggle="modal" data-bs-target="#exampleModal">Mas Detalles</button>
-                  <button class="btn btn-primary" onclick="agregarAlCarrito(${element.id})">Añadir al Carrito</button>
+        const response = await fetch(`http://localhost/mvcPokemon/controllers/productos.readCat.php?categoria=${idCat}`);
+        const data = await response.json();
+        
+        if (data.length === 0) {
+            alert('No hay Productos de esta Categoría Por el momento');
+            return;
+        }
+
+        // Mostrar el botón de "Mostrar Todos" y actualizar el título
+        document.getElementById('btn-mostrar-todos').classList.remove('d-none');
+        document.getElementById('categoria-actual').textContent = `Categoría: ${data[0].categoria}`;
+
+        // Usar el mismo formato de tarjetas que en getPokemon
+        let cardContent = "";
+        let rowContent = "";
+
+        data.forEach((element, index) => {
+            if (index % 4 === 0) {
+                rowContent += "<div class='row g-2'>";
+            }
+            const card = `
+            <div class="col-md-3">
+              <div class="card h-100 pokemon-card" 
+                   draggable="true" 
+                   ondragstart="drag(event)" 
+                   data-pokemon-id="${element.id}">
+                <div class="card-img-container">
+                  <img src="${element.urlFoto}" class="card-img-top pokemon-img" alt="${element.nombrePro}">
+                </div>
+                <div class="card-body p-2">
+                  <h6 class="card-title mb-1">${element.nombrePro}</h6>
+                  <p class="card-text mb-1"><small class="text-muted">${element.categoria}</small></p>
+                  <p class="card-text mb-2 fw-bold">$${element.precioPro}</p>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary flex-grow-1" 
+                            onclick="getDetallePokemon('${element.id}')" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#exampleModal">
+                      <i class="fas fa-info-circle"></i> Detalles
+                    </button>
+                    <button class="btn btn-sm btn-primary flex-grow-1" 
+                            onclick="agregarAlCarrito(${element.id})">
+                      <i class="fas fa-cart-plus"></i> Agregar
+                    </button>
                 </div>
               </div>
             </div>
           </div>
         `;
-  
-        document.getElementById('listPokemonCategoria').innerHTML = lista;
-      });
-  }
+            rowContent += card;
 
-function getDetallePokemon(idP) {
-    fetch("http://localhost/mvcPokemon/controllers/productos.readId.php?id=" + idP)
-        .then(response => response.json())
-        .then(data => {
-            const detallePokemon = document.getElementById("detallePokemon");
-            detallePokemon.innerHTML = `
-                <div class="card mt-5">
-                    <div class="d-flex justify-content-center">
-                        <img src="${data.urlFoto}" class="card-img-top" alt="..." style="max-width: 350px;">
-                    </div>
-                    <div class="card-header mt-3 text-center bg-primary text-white">
-                        <h5 class="card-title tipo-${data.categoriaP}">${data.nombrePro.toUpperCase()}</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-12">
-                                <h6 class="text-center text-secondary">Categoría</h6>
-                                <p class="text-center">${data.categoriaP}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <h6 class="text-center text-secondary">Precio</h6>
-                                <p class="text-center">$${data.precioPro}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <h6 class="text-center text-secondary">Unidades Disponibles</h6>
-                                <p class="text-center">${data.cantidadPro} UND</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
+            if ((index + 1) % 4 === 0 || index === data.length - 1) {
+                rowContent += "</div>";
+                cardContent += rowContent;
+                rowContent = "";
+            }
         });
-}
 
-// ------------Funciones del Carrito ---------------
-let p = [];
-
-async function agregarAlCarrito(elemento) {
-    const response = await fetch('http://localhost/mvcPokemon/controllers/productos.readId.php?id=' + elemento)
-    const data = await response.json()
-
-    // Verificar si el producto ya está en el carrito
-    const index = p.findIndex(producto => producto.id === data.id);
-    if (index !== -1) {
-        // Si el producto ya está en el carrito, incrementar su cantidad
-        if (data.cantidadPro > p[index].cantidad) {
-            p[index].cantidad++;
-        } else {
-            p[index].cantidad = data.cantidadPro;
-        }
-    } else {
-        // Si el producto no está en el carrito, agregarlo con cantidad 1
-        data.cantidad = 1;
-        p.push(data);
-
-    }
-
-    pintarCarrito();
-}
-
-let productosCarrito = [];
-
-function pintarCarrito() {
-    let card = ""
-    let total = 0;
-    productosCarrito = [];
-
-    p.forEach(producto => {
-        let precio = producto.precioPro * producto.cantidad
-        total += precio;
-        card += `
-            <div class="card mb-3">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="${producto.urlFoto}" class="img-fluid rounded-start" alt="Imagen">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">${producto.nombrePro}</h5>
-                            <p class="card-text"><small class="text-body-secondary">diponibles: ${producto.cantidadPro}</small></p>
-                            <div class="d-flex">
-                                <label class="card-text me-2">Cantidad:</label>
-                                <input type="number" class="form-control" min="0" max="${producto.cantidadPro}" value="${producto.cantidad}" oninput="actualizarPrecio(${producto.id}, this.value)" id="c">
-                            </div>
-                            <div">
-                                <label class="card-text me-2" id="precio-${producto.id}">Precio: $${precio}</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            `
-        document.getElementById('contenidoCarrito').innerHTML = card
-        document.getElementById('total').innerHTML = total 
+        document.getElementById('pokemon-container').innerHTML = cardContent;
         
-        const productoCarrito = crearProductoCarrito(producto);
-        productosCarrito.push(productoCarrito);
-    });
-    let c = p.length
-    actualizarNumeroCarrito(c)
-}
-
-function crearProductoCarrito(producto) {
-
-    return {
-        producto:producto,
-    };
-}
-
-function actualizarPrecio(id, cantidad) {
-    const producto = p.find(producto => producto.id === id);
-    if (producto) {
-        producto.cantidad = parseInt(cantidad);
-        const precio = producto.precioPro * producto.cantidad;
-        document.getElementById(`precio-${producto.id}`).innerHTML = 'Precio: $'+precio;
-        actualizarTotal();
+        // Actualizar la paginación
+        createPagination(data.length);
+        
+        // Scroll suave hasta la sección de productos
+        document.getElementById('pokemon-container').scrollIntoView({ behavior: 'smooth' });
+        
+    } catch (error) {
+        console.error('Error al cargar Pokémon por categoría:', error);
+        alert('Error al cargar los productos de esta categoría');
     }
 }
 
-function actualizarTotal() {
-    let total = 0;
-    p.forEach(producto => {
-        const precio = producto.precioPro * producto.cantidad;
-        total += precio;
-    });
-    document.getElementById('total').innerHTML = total;
-}
-
-function actualizarNumeroCarrito(cantidad) {
-    const carritoNumero = document.getElementById("carrito-numero");
-    carritoNumero.innerText = cantidad.toString();
-
-    // Mostrar u ocultar el número según la cantidad de productos en el carrito
-    if (cantidad > 0) {
-        carritoNumero.style.display = "block";
-    } else {
-        carritoNumero.style.display = "none";
-    }
-}
-
-function limpiarCarrito() {
-    p = [];
-    document.getElementById('contenidoCarrito').innerHTML = "";
-    document.getElementById('total').innerHTML = "";
-    pintarCarrito();
+// Modificar la función printPokemones para que use loadPokemon
+async function printPokemones() {
+    await loadPokemon();
 }
 
 function realizarCompra() {
@@ -519,7 +836,88 @@ function realizarCompra() {
 
 function scrollToTop() {
     window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
+        top: 0,
+        behavior: 'smooth'
     });
-  }
+}
+
+// Inicialización cuando el DOM está listo
+document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar el carrusel
+    carrusel();
+    
+    // Configurar el evento de búsqueda
+    const searchInput = document.getElementById("txtBuscar");
+    if (searchInput) {
+        searchInput.addEventListener("input", autoCompletePokemon);
+    }
+
+    // Agregar un evento para reiniciar el input cuando se abre el modal
+    const modal = document.getElementById('exampleModal');
+    if (modal) {
+        modal.addEventListener('show.bs.modal', () => {
+            const cantidadInput = document.getElementById('cantidadDetalle');
+            if (cantidadInput) {
+                cantidadInput.value = 1;
+            }
+        });
+    }
+
+    // Eventos para el drag and drop
+    const cartButton = document.getElementById('cartPokemon');
+    
+    // Evento cuando se arrastra sobre el carrito
+    cartButton.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        cartButton.classList.add('drag-over');
+    });
+    
+    // Evento cuando se sale del carrito
+    cartButton.addEventListener('dragleave', () => {
+        cartButton.classList.remove('drag-over');
+    });
+    
+    // Evento cuando se suelta en el carrito
+    cartButton.addEventListener('drop', () => {
+        cartButton.classList.remove('drag-over');
+    });
+    
+    // Evento cuando termina el drag
+    document.addEventListener('dragend', () => {
+        document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+        cartButton.classList.remove('drag-over');
+    });
+});
+
+// Función para mostrar todos los Pokémon
+function mostrarTodos() {
+    localStorage.removeItem("categoria");
+    getPokemon();
+    document.getElementById('btn-mostrar-todos').classList.add('d-none');
+    document.getElementById('categoria-actual').textContent = 'Todos los Pokémon';
+}
+
+// Función para controlar el comportamiento del header al hacer scroll
+let lastScrollTop = 0;
+const header = document.querySelector('header');
+const scrollThreshold = 50; // Umbral para activar la animación
+
+window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Solo activamos la animación después de pasar el umbral
+    if (currentScroll > scrollThreshold) {
+        if (currentScroll > lastScrollTop) {
+            // Scroll hacia abajo
+            header.classList.add('header-hidden');
+        } else {
+            // Scroll hacia arriba
+            header.classList.remove('header-hidden');
+        }
+    } else {
+        // Si estamos cerca del top, mostramos el header
+        header.classList.remove('header-hidden');
+    }
+    
+    lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+});
