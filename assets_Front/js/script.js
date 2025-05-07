@@ -80,24 +80,6 @@ function drop(ev) {
 }
 
 /**
- * Obtiene información detallada de un Pokémon desde la API
- * @param {string} nombre - Nombre del Pokémon
- * @returns {Promise<void>}
- */
-async function backInfoPokemon(nombre) {
-    try {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${nombre}`);
-        if (!response.ok) {
-            throw new Error(`Error al obtener datos: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log('Información del Pokémon:', data);
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-/**
  * Carrusel
  * -------
  * Funciones relacionadas con el carrusel de categorías
@@ -320,8 +302,8 @@ async function printCategories() {
  * @returns {Promise<void>}
  */
 async function agregarAlCarrito(elemento) {
-    const cantidadInput = document.getElementById('cantidadDetalle');
-    const cantidad = cantidadInput ? parseInt(cantidadInput.value) : 1;
+    // Siempre usar cantidad 1 cuando se agrega desde la tarjeta
+    const cantidad = 1;
 
     try {
         const response = await fetch('http://localhost/mvcPokemon/controllers/productos.readId.php?id=' + elemento);
@@ -393,74 +375,72 @@ async function agregarAlCarrito(elemento) {
  * Pinta el contenido del carrito
  */
 function pintarCarrito() {
-    let card = "";
-    let total = 0;
-    productosCarrito = [];
-
+    // Simplificando variables locales
+    const contenidoCarrito = document.getElementById('contenidoCarrito');
+    const totalElement = document.getElementById('total');
+    const carritoNumero = document.getElementById("carrito-numero");
+    
     // Verificar si el carrito está vacío
     if (!p || p.length === 0) {
-        document.getElementById('contenidoCarrito').innerHTML = '<div class="text-center p-3">El carrito está vacío</div>';
-        document.getElementById('total').innerHTML = "$0";
-        actualizarNumeroCarrito(0);
+        contenidoCarrito.innerHTML = '<div class="text-center p-3">El carrito está vacío</div>';
+        totalElement.innerHTML = "$0";
+        carritoNumero.innerText = "0";
+        carritoNumero.style.display = "none";
         return;
     }
 
-    p.forEach(producto => {
-        if (!producto) return; // Saltar productos inválidos
+    let total = 0;
+    productosCarrito = p.map(producto => {
+        if (!producto) return null;
         
-        let precio = producto.precioPro * producto.cantidad;
+        const precio = producto.precioPro * producto.cantidad;
         total += precio;
-        card += `
-            <div class="cart-item">
-                <div class="cart-item-image">
-                    <img src="${producto.urlFoto}" alt="${producto.nombrePro}">
-                </div>
-                <div class="cart-item-details">
-                    <h6 class="cart-item-title">${producto.nombrePro}</h6>
-                    <div class="cart-item-info">
-                        <span class="cart-item-price">$${producto.precioPro}</span>
-                        <span class="cart-item-stock">Stock: ${producto.cantidadPro}</span>
-                    </div>
-                    <div class="cart-item-controls">
-                        <div class="quantity-control">
-                            <button class="btn-quantity" onclick="actualizarCantidad(${producto.id}, ${producto.cantidad - 1})">-</button>
-                            <input type="number" class="form-control" min="1" max="${producto.cantidadPro}" 
-                                   value="${producto.cantidad}" onchange="actualizarCantidad(${producto.id}, this.value)">
-                            <button class="btn-quantity" onclick="actualizarCantidad(${producto.id}, ${producto.cantidad + 1})">+</button>
-                        </div>
-                        <div class="cart-item-total">
-                            <span>Total: $${precio}</span>
-                        </div>
-                    </div>
-                    <button class="btn-remove" onclick="eliminarDelCarrito(${producto.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
+        
+        return {
+            id: producto.id,
+            nombre: producto.nombrePro,
+            precio: producto.precioPro,
+            cantidad: producto.cantidad,
+            stock: producto.cantidadPro,
+            imagen: producto.urlFoto,
+            total: precio
+        };
+    }).filter(Boolean);
+
+    // Generar el HTML del carrito
+    const card = productosCarrito.map(producto => `
+        <div class="cart-item">
+            <div class="cart-item-image">
+                <img src="${producto.imagen}" alt="${producto.nombre}">
             </div>
-        `;
-        const productoCarrito = crearProductoCarrito(producto);
-        productosCarrito.push(productoCarrito);
-    });
+            <div class="cart-item-details">
+                <h6 class="cart-item-title">${producto.nombre}</h6>
+                <div class="cart-item-info">
+                    <span class="cart-item-price">$${producto.precio}</span>
+                    <span class="cart-item-stock">Stock: ${producto.stock}</span>
+                </div>
+                <div class="cart-item-controls">
+                    <div class="quantity-control">
+                        <button class="btn-quantity" onclick="actualizarCantidad(${producto.id}, ${producto.cantidad - 1})">-</button>
+                        <input type="number" class="form-control" min="1" max="${producto.stock}" 
+                               value="${producto.cantidad}" onchange="actualizarCantidad(${producto.id}, this.value)">
+                        <button class="btn-quantity" onclick="actualizarCantidad(${producto.id}, ${producto.cantidad + 1})">+</button>
+                    </div>
+                    <div class="cart-item-total">
+                        <span>Total: $${producto.total}</span>
+                    </div>
+                </div>
+                <button class="btn-remove" onclick="eliminarDelCarrito(${producto.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
 
-    document.getElementById('contenidoCarrito').innerHTML = card;
-    document.getElementById('total').innerHTML = `$${total}`;
-    actualizarNumeroCarrito(p.length);
-}
-
-/**
- * Crea un objeto de producto para el carrito
- * @param {Object} producto - Producto a agregar al carrito
- * @returns {Object} Producto formateado para el carrito
- */
-function crearProductoCarrito(producto) {
-    return {
-        id: producto.id,
-        nombre: producto.nombrePro,
-        precio: producto.precioPro,
-        cantidad: producto.cantidad,
-        stock: producto.cantidadPro,
-        imagen: producto.urlFoto
-    };
+    contenidoCarrito.innerHTML = card;
+    totalElement.innerHTML = `$${total}`;
+    carritoNumero.innerText = p.length.toString();
+    carritoNumero.style.display = p.length > 0 ? "block" : "none";
 }
 
 /**
@@ -470,16 +450,21 @@ function crearProductoCarrito(producto) {
  */
 function actualizarCantidad(id, nuevaCantidad) {
     const producto = p.find(p => p.id === id);
-    if (producto) {
-        nuevaCantidad = parseInt(nuevaCantidad);
-        if (nuevaCantidad >= 1 && nuevaCantidad <= producto.cantidadPro) {
-            producto.cantidad = nuevaCantidad;
-            pintarCarrito();
-        } else if (nuevaCantidad > producto.cantidadPro) {
-            producto.cantidad = producto.cantidadPro;
-            alert('Se ha alcanzado el límite de unidades disponibles');
-            pintarCarrito();
-        }
+    if (!producto) return;
+
+    nuevaCantidad = parseInt(nuevaCantidad);
+    if (nuevaCantidad >= 1 && nuevaCantidad <= producto.cantidadPro) {
+        producto.cantidad = nuevaCantidad;
+        pintarCarrito();
+    } else if (nuevaCantidad > producto.cantidadPro) {
+        producto.cantidad = producto.cantidadPro;
+        Swal.fire({
+            title: '¡Atención!',
+            text: 'Se ha alcanzado el límite de unidades disponibles',
+            icon: 'warning',
+            confirmButtonColor: '#2a75bb'
+        });
+        pintarCarrito();
     }
 }
 
@@ -497,16 +482,6 @@ function eliminarDelCarrito(id) {
             offcanvas.hide();
         }
     }
-}
-
-/**
- * Actualiza el número de items en el carrito
- * @param {number} cantidad - Cantidad de items
- */
-function actualizarNumeroCarrito(cantidad) {
-    const carritoNumero = document.getElementById("carrito-numero");
-    carritoNumero.innerText = cantidad.toString();
-    carritoNumero.style.display = cantidad > 0 ? "block" : "none";
 }
 
 /**
@@ -621,6 +596,10 @@ async function printPokemones() {
     await loadPokemon();
 }
 
+/**
+ * Obtiene los detalles de un Pokémon
+ * @param {string} idP - ID del Pokémon
+ */
 function getDetallePokemon(idP) {
     fetch("http://localhost/mvcPokemon/controllers/productos.readId.php?id=" + idP)
         .then(response => response.json())
@@ -660,7 +639,7 @@ function getDetallePokemon(idP) {
                                         <span class="input-group-text">Cantidad</span>
                                         <input type="number" class="form-control" min="1" max="${data.cantidadPro}" value="1" id="cantidadDetalle">
                                     </div>
-                                    <button class="btn btn-primary flex-grow-1" onclick="agregarAlCarrito(${data.id})">
+                                    <button class="btn btn-primary flex-grow-1" onclick="agregarAlCarritoDetalle(${data.id})">
                                         <i class="fas fa-cart-plus"></i> Agregar al Carrito
                                     </button>
                                 </div>
@@ -669,6 +648,80 @@ function getDetallePokemon(idP) {
                     </div>
                 </div>`;
         });
+}
+
+/**
+ * Agrega un Pokémon al carrito desde el modal de detalles
+ * @param {number} elemento - ID del Pokémon
+ */
+async function agregarAlCarritoDetalle(elemento) {
+    const cantidadInput = document.getElementById('cantidadDetalle');
+    const cantidad = parseInt(cantidadInput.value);
+
+    try {
+        const response = await fetch('http://localhost/mvcPokemon/controllers/productos.readId.php?id=' + elemento);
+        const data = await response.json();
+
+        const index = p.findIndex(producto => producto.id === data.id);
+        if (index !== -1) {
+            const nuevaCantidad = p[index].cantidad + cantidad;
+            if (nuevaCantidad <= data.cantidadPro) {
+                p[index].cantidad = nuevaCantidad;
+            } else {
+                p[index].cantidad = data.cantidadPro;
+                Swal.fire({
+                    title: '¡Atención!',
+                    text: 'Se ha alcanzado el límite de unidades disponibles',
+                    icon: 'warning',
+                    confirmButtonColor: '#2a75bb'
+                });
+            }
+        } else {
+            if (cantidad <= data.cantidadPro) {
+                data.cantidad = cantidad;
+                p.push(data);
+            } else {
+                data.cantidad = data.cantidadPro;
+                p.push(data);
+                Swal.fire({
+                    title: '¡Atención!',
+                    text: 'Se ha ajustado la cantidad al máximo disponible',
+                    icon: 'warning',
+                    confirmButtonColor: '#2a75bb'
+                });
+            }
+        }
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
+        if (modal) {
+            modal.hide();
+        }
+
+        const offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'));
+        offcanvas.show();
+
+        pintarCarrito();
+
+        // Mostrar confirmación de agregado al carrito
+        Swal.fire({
+            title: '¡Agregado!',
+            text: `${data.nombrePro} ha sido agregado al carrito`,
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false,
+            position: 'top-end',
+            toast: true
+        });
+
+    } catch (error) {
+        console.error('Error al agregar al carrito:', error);
+        Swal.fire({
+            title: '¡Error!',
+            text: 'Hubo un problema al agregar el producto al carrito',
+            icon: 'error',
+            confirmButtonColor: '#2a75bb'
+        });
+    }
 }
 
 // Función auxiliar para obtener el color según el tipo de Pokémon

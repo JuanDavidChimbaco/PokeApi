@@ -316,7 +316,7 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-modal="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -325,7 +325,6 @@
                 </div>
                 <div class="modal-body p-0">
                     <div id="detallePokemon" class="p-3">
-
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -342,6 +341,31 @@
 
     <!-- script -->
     <script src="assets_Front/js/script.js"></script>
+    <script>
+        // Manejar el foco en los modales
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('exampleModal');
+            const offcanvas = document.getElementById('offcanvasRight');
+
+            // Para el modal
+            modal.addEventListener('show.bs.modal', function() {
+                this.removeAttribute('aria-hidden');
+            });
+
+            modal.addEventListener('hidden.bs.modal', function() {
+                this.setAttribute('aria-hidden', 'true');
+            });
+
+            // Para el offcanvas
+            offcanvas.addEventListener('show.bs.offcanvas', function() {
+                this.removeAttribute('aria-hidden');
+            });
+
+            offcanvas.addEventListener('hidden.bs.offcanvas', function() {
+                this.setAttribute('aria-hidden', 'true');
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -541,14 +541,6 @@ header.header-hidden {
     margin: 0;
 }
 
-/* Mensaje de carrito vacío */
-.cart-empty-message {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: #666;
-    font-size: 0.95rem;
-}
-
 /* logo */
 .logo{
     text-align: center; 
@@ -572,17 +564,6 @@ header.header-hidden {
     align-items: center;
     flex-direction: column;
 }
-.img-responsive {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-}
-.img-responsive2 {
-    width: fit-content;
-    height: fit-content;
-}
-
 .carrito-numero {
     position: absolute;
     top: 20px;
@@ -1037,14 +1018,6 @@ header.header-hidden {
     margin: 0;
 }
 
-/* Mensaje de carrito vacío */
-.cart-empty-message {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: #666;
-    font-size: 0.95rem;
-}
-
 /* Ajustes responsivos */
 @media (max-width: 576px) {
     .cart-item {
@@ -1225,8 +1198,7 @@ header.header-hidden {
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('../img/pokeball-pattern.png') repeat;
-    opacity: 0.1;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
     animation: backgroundMove 20s linear infinite;
 }
 
