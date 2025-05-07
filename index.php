@@ -15,6 +15,10 @@
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
         crossorigin="anonymous"></script>
 
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+
     <!-- FontAwesome -->
     <script src="https://kit.fontawesome.com/6bf421ec3d.js" crossorigin="anonymous"></script>
     <link href="https://fonts.cdnfonts.com/css/pokemon-solid" rel="stylesheet">

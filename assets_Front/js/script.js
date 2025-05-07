@@ -1,4 +1,11 @@
 /**
+ * Variables Globales
+ * -----------------
+ */
+let p = []; // Array para almacenar los productos del carrito
+let productosCarrito = []; // Array para almacenar los productos del carrito en formato específico
+
+/**
  * Funciones de Drag and Drop
  * -------------------------
  * Estas funciones manejan la funcionalidad de arrastrar y soltar Pokémon al carrito.
@@ -10,7 +17,9 @@
  */
 function allowDrop(ev) {
     ev.preventDefault();
-    ev.currentTarget.classList.add('drag-over');
+    ev.stopPropagation();
+    const dropZone = ev.currentTarget;
+    dropZone.classList.add('drag-over');
 }
 
 /**
@@ -19,7 +28,9 @@ function allowDrop(ev) {
  */
 function handleDragEnter(ev) {
     ev.preventDefault();
-    ev.currentTarget.classList.add('drag-over');
+    ev.stopPropagation();
+    const dropZone = ev.currentTarget;
+    dropZone.classList.add('drag-over');
 }
 
 /**
@@ -27,7 +38,10 @@ function handleDragEnter(ev) {
  * @param {DragEvent} ev - Evento de arrastre
  */
 function handleDragLeave(ev) {
-    ev.currentTarget.classList.remove('drag-over');
+    ev.preventDefault();
+    ev.stopPropagation();
+    const dropZone = ev.currentTarget;
+    dropZone.classList.remove('drag-over');
 }
 
 /**
@@ -39,8 +53,13 @@ function drag(ev) {
     if (!target) return;
     
     const pokemonId = target.getAttribute('data-pokemon-id');
+    if (!pokemonId) return;
+
     ev.dataTransfer.setData('pokemonId', pokemonId);
     target.classList.add('dragging');
+    
+    // Agregar efecto visual al arrastrar
+    ev.dataTransfer.effectAllowed = 'move';
 }
 
 /**
@@ -49,7 +68,10 @@ function drag(ev) {
  */
 function drop(ev) {
     ev.preventDefault();
-    ev.currentTarget.classList.remove('drag-over');
+    ev.stopPropagation();
+    
+    const dropZone = ev.currentTarget;
+    dropZone.classList.remove('drag-over');
     
     const pokemonId = ev.dataTransfer.getData('pokemonId');
     if (pokemonId) {
@@ -301,38 +323,70 @@ async function agregarAlCarrito(elemento) {
     const cantidadInput = document.getElementById('cantidadDetalle');
     const cantidad = cantidadInput ? parseInt(cantidadInput.value) : 1;
 
-    const response = await fetch('http://localhost/mvcPokemon/controllers/productos.readId.php?id=' + elemento)
-    const data = await response.json()
+    try {
+        const response = await fetch('http://localhost/mvcPokemon/controllers/productos.readId.php?id=' + elemento);
+        const data = await response.json();
 
-    const index = p.findIndex(producto => producto.id === data.id);
-    if (index !== -1) {
-        const nuevaCantidad = p[index].cantidad + cantidad;
-        if (nuevaCantidad <= data.cantidadPro) {
-            p[index].cantidad = nuevaCantidad;
+        const index = p.findIndex(producto => producto.id === data.id);
+        if (index !== -1) {
+            const nuevaCantidad = p[index].cantidad + cantidad;
+            if (nuevaCantidad <= data.cantidadPro) {
+                p[index].cantidad = nuevaCantidad;
+            } else {
+                p[index].cantidad = data.cantidadPro;
+                Swal.fire({
+                    title: '¡Atención!',
+                    text: 'Se ha alcanzado el límite de unidades disponibles',
+                    icon: 'warning',
+                    confirmButtonColor: '#2a75bb'
+                });
+            }
         } else {
-            p[index].cantidad = data.cantidadPro;
-            alert('Se ha alcanzado el límite de unidades disponibles');
+            if (cantidad <= data.cantidadPro) {
+                data.cantidad = cantidad;
+                p.push(data);
+            } else {
+                data.cantidad = data.cantidadPro;
+                p.push(data);
+                Swal.fire({
+                    title: '¡Atención!',
+                    text: 'Se ha ajustado la cantidad al máximo disponible',
+                    icon: 'warning',
+                    confirmButtonColor: '#2a75bb'
+                });
+            }
         }
-    } else {
-        if (cantidad <= data.cantidadPro) {
-            data.cantidad = cantidad;
-            p.push(data);
-        } else {
-            data.cantidad = data.cantidadPro;
-            p.push(data);
-            alert('Se ha ajustado la cantidad al máximo disponible');
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
+        if (modal) {
+            modal.hide();
         }
+
+        const offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'));
+        offcanvas.show();
+
+        pintarCarrito();
+
+        // Mostrar confirmación de agregado al carrito
+        Swal.fire({
+            title: '¡Agregado!',
+            text: `${data.nombrePro} ha sido agregado al carrito`,
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false,
+            position: 'top-end',
+            toast: true
+        });
+
+    } catch (error) {
+        console.error('Error al agregar al carrito:', error);
+        Swal.fire({
+            title: '¡Error!',
+            text: 'Hubo un problema al agregar el producto al carrito',
+            icon: 'error',
+            confirmButtonColor: '#2a75bb'
+        });
     }
-
-    const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
-    if (modal) {
-        modal.hide();
-    }
-
-    const offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'));
-    offcanvas.show();
-
-    pintarCarrito();
 }
 
 /**
@@ -343,7 +397,8 @@ function pintarCarrito() {
     let total = 0;
     productosCarrito = [];
 
-    if (p.length === 0) {
+    // Verificar si el carrito está vacío
+    if (!p || p.length === 0) {
         document.getElementById('contenidoCarrito').innerHTML = '<div class="text-center p-3">El carrito está vacío</div>';
         document.getElementById('total').innerHTML = "$0";
         actualizarNumeroCarrito(0);
@@ -351,6 +406,8 @@ function pintarCarrito() {
     }
 
     p.forEach(producto => {
+        if (!producto) return; // Saltar productos inválidos
+        
         let precio = producto.precioPro * producto.cantidad;
         total += precio;
         card += `
@@ -388,6 +445,22 @@ function pintarCarrito() {
     document.getElementById('contenidoCarrito').innerHTML = card;
     document.getElementById('total').innerHTML = `$${total}`;
     actualizarNumeroCarrito(p.length);
+}
+
+/**
+ * Crea un objeto de producto para el carrito
+ * @param {Object} producto - Producto a agregar al carrito
+ * @returns {Object} Producto formateado para el carrito
+ */
+function crearProductoCarrito(producto) {
+    return {
+        id: producto.id,
+        nombre: producto.nombrePro,
+        precio: producto.precioPro,
+        cantidad: producto.cantidad,
+        stock: producto.cantidadPro,
+        imagen: producto.urlFoto
+    };
 }
 
 /**
@@ -440,15 +513,46 @@ function actualizarNumeroCarrito(cantidad) {
  * Limpia el carrito
  */
 function limpiarCarrito() {
-    p = [];
-    document.getElementById('contenidoCarrito').innerHTML = "";
-    document.getElementById('total').innerHTML = "";
-    pintarCarrito();
-    
-    const cantidadInput = document.getElementById('cantidadDetalle');
-    if (cantidadInput) {
-        cantidadInput.value = 1;
+    if (p.length === 0) {
+        Swal.fire({
+            title: '¡Ups!',
+            text: 'El carrito ya está vacío',
+            icon: 'info',
+            confirmButtonColor: '#2a75bb'
+        });
+        return;
     }
+
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Se eliminarán todos los productos del carrito',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, limpiar carrito',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            p = [];
+            document.getElementById('contenidoCarrito').innerHTML = "";
+            document.getElementById('total').innerHTML = "";
+            pintarCarrito();
+            
+            const cantidadInput = document.getElementById('cantidadDetalle');
+            if (cantidadInput) {
+                cantidadInput.value = 1;
+            }
+
+            Swal.fire({
+                title: '¡Listo!',
+                text: 'El carrito ha sido limpiado',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+    });
 }
 
 //-------------------Funcion Filtrar Pokemon------------------
@@ -752,7 +856,23 @@ async function loadPokemon() {
         const data = await response.json();
         
         if (data.length === 0) {
-            alert('No hay Productos de esta Categoría Por el momento');
+            // Si no hay productos en la categoría, mostrar todos los Pokémon
+            Swal.fire({
+                title: '¡Ups!',
+                text: 'No hay productos disponibles en esta categoría por el momento.',
+                icon: 'info',
+                confirmButtonText: 'Ver todos los Pokémon',
+                confirmButtonColor: '#2a75bb',
+                background: '#fff',
+                customClass: {
+                    title: 'pokemon-title',
+                    content: 'pokemon-text'
+                }
+            }).then(() => {
+                getPokemon();
+                document.getElementById('btn-mostrar-todos').classList.add('d-none');
+                document.getElementById('categoria-actual').textContent = 'Todos los Pokémon';
+            });
             return;
         }
 
@@ -816,7 +936,22 @@ async function loadPokemon() {
         
     } catch (error) {
         console.error('Error al cargar Pokémon por categoría:', error);
-        alert('Error al cargar los productos de esta categoría');
+        Swal.fire({
+            title: '¡Error!',
+            text: 'Hubo un problema al cargar los productos de esta categoría.',
+            icon: 'error',
+            confirmButtonText: 'Ver todos los Pokémon',
+            confirmButtonColor: '#2a75bb',
+            background: '#fff',
+            customClass: {
+                title: 'pokemon-title',
+                content: 'pokemon-text'
+            }
+        }).then(() => {
+            getPokemon();
+            document.getElementById('btn-mostrar-todos').classList.add('d-none');
+            document.getElementById('categoria-actual').textContent = 'Todos los Pokémon';
+        });
     }
 }
 
