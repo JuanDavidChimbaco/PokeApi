@@ -619,53 +619,278 @@ header.header-hidden {
     border: 2px solid var(--primary-color);
     border-radius: 20px;
     padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    background-color: white;
+}
+
+#txtBuscar:focus {
+    box-shadow: 0 0 0 0.25rem rgba(42, 117, 187, 0.25);
+    border-color: var(--primary-color);
 }
 
 #listaPokemon {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 10px 10px;
+    background: white;
+    z-index: 1000;
 }
 
-.carrito-numero {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background-color: var(--accent-color);
+/* Dropdown de categorías */
+.dropdown .btn-outline-warning {
+    border-color: var(--accent-color);
     color: var(--dark-color);
-    border-radius: 50%;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: bold;
+    font-weight: 500;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.dropdown .btn-outline-warning:hover,
+.dropdown .btn-outline-warning:focus {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--dark-color);
+    box-shadow: 0 0 0 0.25rem rgba(255, 203, 5, 0.25);
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 0.5rem;
+    min-width: 200px;
+}
+
+.dropdown-item {
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(42, 117, 187, 0.1);
+    color: var(--primary-color);
 }
 
 /* Media Queries */
 @media (max-width: 768px) {
-    .logo {
-        font-size: 2rem;
+    /* Ajustes para la barra de navegación */
+    .d-flex.align-items-center {
+        flex-direction: column;
+        gap: 1rem !important;
+        padding: 0 1rem;
     }
 
-    .header-envio {
-        font-size: 0.8rem;
+    .flex-grow-1 {
+        width: 100%;
     }
 
     #txtBuscar {
-        font-size: 0.9rem;
+        font-size: 16px; /* Previene zoom en iOS */
+        height: 45px;
+    }
+
+    /* Ajustes para el dropdown */
+    .dropdown {
+        width: 100%;
+    }
+
+    .dropdown .btn-outline-warning {
+        width: 100%;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 
     .dropdown-menu {
         width: 100%;
         max-height: 300px;
+        margin-top: 0.5rem;
+    }
+
+    .dropdown-item {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+
+    /* Ajustes para el carrito */
+    .cart-drop-zone {
+        align-self: flex-end;
+        margin-top: 0.5rem;
+    }
+
+    #cartPokemon {
+        width: 45px;
+        height: 45px;
+    }
+
+    /* Ajustes para las cards de Pokémon */
+    .pokemon-card {
+        margin-bottom: 1rem;
+    }
+
+    .card-img-container {
+        height: 180px;
+    }
+
+    .pokemon-img {
+        max-height: 160px;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    /* Ajustes para el grid de Pokémon */
+    .row.g-2 {
+        margin: 0;
+    }
+
+    .col-md-3 {
+        padding: 0.5rem;
     }
 }
 
+/* Ajustes específicos para móviles pequeños */
 @media (max-width: 576px) {
-    .logo {
-        font-size: 1.75rem;
+    .d-flex.align-items-center {
+        padding: 0 0.5rem;
     }
 
-    .header-envio {
-        font-size: 0.75rem;
+    #txtBuscar {
+        height: 40px;
+    }
+
+    .dropdown .btn-outline-warning {
+        height: 40px;
+    }
+
+    .card-img-container {
+        height: 150px;
+    }
+
+    .pokemon-img {
+        max-height: 130px;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+
+    /* Ajustes para el carrito en móvil */
+    .cart-item {
         padding: 0.5rem;
     }
+
+    .cart-item-image {
+        width: 60px;
+        height: 60px;
+    }
+
+    .cart-item-title {
+        font-size: 0.9rem;
+    }
+
+    .cart-item-info {
+        font-size: 0.8rem;
+    }
+
+    .quantity-control {
+        flex-wrap: wrap;
+    }
+
+    .btn-quantity {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* Ajustes para tablets */
+@media (min-width: 769px) and (max-width: 991px) {
+    .col-md-3 {
+        width: 50%;
+    }
+
+    .card-img-container {
+        height: 200px;
+    }
+
+    .pokemon-img {
+        max-height: 180px;
+    }
+}
+
+/* Ajustes para el dropdown en todos los dispositivos */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 0.5rem;
+    min-width: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.dropdown-item {
+    border-radius: 5px;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(42, 117, 187, 0.1);
+    color: var(--primary-color);
+}
+
+/* Ajustes para la lista de búsqueda */
+#listaPokemon {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#listaPokemon .list-group-item {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-bottom: 1px solid #eee;
+}
+
+#listaPokemon .list-group-item:last-child {
+    border-bottom: none;
+}
+
+#listaPokemon .pokemon-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-left: 0.5rem;
 }
 
 /* Utilidades */
@@ -1368,6 +1593,113 @@ header.header-hidden {
         width: 35px;
         height: 35px;
         font-size: 1.25rem;
+    }
+}
+
+/* Estilos para la sección de equipo */
+.team-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    height: 100%;
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+}
+
+.team-card-image {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+}
+
+.team-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.team-card-content {
+    padding: 1rem;
+    text-align: center;
+}
+
+.team-card-name {
+    color: white;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+    font-family: var(--font-pokemon);
+}
+
+.team-card-role {
+    color: var(--accent-color);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.team-social-links {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.team-social-link {
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.team-social-link:hover {
+    color: var(--accent-color);
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+/* Ajustes responsivos para la sección de equipo */
+@media (max-width: 768px) {
+    .team-card-image {
+        height: 100px;
+    }
+
+    .team-card-content {
+        padding: 0.75rem;
+    }
+
+    .team-card-name {
+        font-size: 1rem;
+    }
+
+    .team-card-role {
+        font-size: 0.8rem;
+    }
+
+    .team-social-link {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .team-card-image {
+        height: 80px;
+    }
+
+    .team-card-content {
+        padding: 0.5rem;
+    }
+
+    .team-card-name {
+        font-size: 0.9rem;
+    }
+
+    .team-card-role {
+        font-size: 0.75rem;
+    }
+
+    .team-social-link {
+        font-size: 0.8rem;
     }
 }
   

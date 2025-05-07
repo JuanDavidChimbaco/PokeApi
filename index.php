@@ -47,45 +47,45 @@
 
         <!-- Barra de navegación -->
         <div class="row py-2 g-0">
-            <!-- Búsqueda -->
-            <div class="col-12 col-md-4 mb-3 mb-md-0">
-                <div class="position-relative w-100">
-                    <input type="search" class="form-control" name="txtBuscar" id="txtBuscar" 
-                           placeholder="Buscar Pokémon..." onkeyup="autoCompletePokemon()">
-                    <div id="listaPokemon" class="w-100"></div>
-                </div>
-            </div>
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between gap-3">
+                    <!-- Búsqueda -->
+                    <div class="flex-grow-1 position-relative">
+                        <input type="search" class="form-control" name="txtBuscar" id="txtBuscar" 
+                               placeholder="Buscar Pokémon..." onkeyup="autoCompletePokemon()"
+                               autocomplete="off">
+                        <div id="listaPokemon" class="w-100"></div>
+                    </div>
 
-            <!-- Categorías -->
-            <div class="col-8 col-md-7 d-flex align-items-center">
-                <div class="dropdown w-100">
-                    <button class="btn btn-outline-warning dropdown-toggle w-100 w-md-auto" type="button" 
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                        Categorías
-                    </button>
-                    <ul class="dropdown-menu overflow-auto w-100" id="pokemon-categoria">
-                        <!-- contenido categorias -->
-                    </ul>
-                </div>
-            </div>
+                    <!-- Categorías -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-warning dropdown-toggle" type="button" 
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="d-none d-md-inline">Categorías</span>
+                            <i class="fas fa-list d-md-none"></i>
+                        </button>
+                        <ul class="dropdown-menu overflow-auto" id="pokemon-categoria">
+                            <!-- contenido categorias -->
+                        </ul>
+                    </div>
 
-            <!-- Carrito -->
-            <div class="col-4 col-md-1 d-flex align-items-center justify-content-end">
-                <div class="cart-drop-zone" 
-                     ondrop="drop(event)" 
-                     ondragover="allowDrop(event)"
-                     ondragleave="handleDragLeave(event)"
-                     ondragenter="handleDragEnter(event)">
-                    <button class="btn btn-outline-primary position-relative" 
-                            id="cartPokemon" 
-                            type="button" 
-                            data-bs-toggle="offcanvas" 
-                            data-bs-target="#offcanvasRight" 
-                            aria-controls="offcanvasRight" 
-                            onclick="pintarCarrito()">
-                        <i class="fas fa-cart-shopping fa-shake"></i>
-                        <span id="carrito-numero" class="carrito-numero">0</span>
-                    </button>
+                    <!-- Carrito -->
+                    <div class="cart-drop-zone" 
+                         ondrop="drop(event)" 
+                         ondragover="allowDrop(event)"
+                         ondragleave="handleDragLeave(event)"
+                         ondragenter="handleDragEnter(event)">
+                        <button class="btn btn-outline-primary position-relative" 
+                                id="cartPokemon" 
+                                type="button" 
+                                data-bs-toggle="offcanvas" 
+                                data-bs-target="#offcanvasRight" 
+                                aria-controls="offcanvasRight" 
+                                onclick="pintarCarrito()">
+                            <i class="fas fa-cart-shopping fa-shake"></i>
+                            <span id="carrito-numero" class="carrito-numero">0</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -192,14 +192,14 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 id="categoria-actual" class="mb-0">Todos los Pokémon</h4>
                     <button id="btn-mostrar-todos" class="btn d-none" onclick="mostrarTodos()">
-                        <i class="fas fa-list"></i> Mostrar Todos
+                        <i class="fas fa-list"></i> <span class="d-none d-md-inline">Mostrar Todos</span>
                     </button>
                 </div>
             </div>
         </div>
         <div id="pagination-container" class="mt-2">
         </div>
-        <div id="pokemon-container">
+        <div id="pokemon-container" class="container-fluid px-2">
         </div>
     </div>
 
@@ -223,41 +223,72 @@
         </div>
     </div>
 
-    <!-- Devlopers -->
-    <div class="row bg-dark align-items-center p-5 g-0">
-
-        <div class="col-4 d-flex justify-content-center">
-            <div class="card">
-                <img src="https://www.w3schools.com/bootstrap4/img_avatar3.png" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Developer</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of
-                        the card's content.</p>
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
+    <!-- Developers -->
+    <div class="row bg-dark py-4 g-0">
+        <div class="col-12">
+            <h3 class="text-center text-warning mb-3">Nuestro Equipo</h3>
+            <div class="row g-3 justify-content-center">
+                <!-- Developer -->
+                <div class="col-12 col-sm-4">
+                    <div class="team-card">
+                        <div class="team-card-image">
+                            <img src="https://www.w3schools.com/bootstrap4/img_avatar3.png" alt="Developer">
+                        </div>
+                        <div class="team-card-content">
+                            <h4 class="team-card-name">Juan Developer</h4>
+                            <p class="team-card-role">Full Stack</p>
+                            <div class="team-social-links">
+                                <a href="#" class="team-social-link" title="GitHub">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="team-social-link" title="LinkedIn">
+                                    <i class="fab fa-linkedin"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-4 d-flex justify-content-center">
-            <div class="card">
-                <img src="https://www.w3schools.com/bootstrap4/img_avatar1.png" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Designer</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of
-                        the card's content.</p>
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                <!-- Designer -->
+                <div class="col-12 col-sm-4">
+                    <div class="team-card">
+                        <div class="team-card-image">
+                            <img src="https://www.w3schools.com/bootstrap4/img_avatar1.png" alt="Designer">
+                        </div>
+                        <div class="team-card-content">
+                            <h4 class="team-card-name">María Designer</h4>
+                            <p class="team-card-role">UI/UX</p>
+                            <div class="team-social-links">
+                                <a href="#" class="team-social-link" title="Behance">
+                                    <i class="fab fa-behance"></i>
+                                </a>
+                                <a href="#" class="team-social-link" title="Dribbble">
+                                    <i class="fab fa-dribbble"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-4 d-flex justify-content-center">
-            <div class="card">
-                <img src="https://www.w3schools.com/bootstrap4/img_avatar6.png" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Manager</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of
-                        the card's content.</p>
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                <!-- Manager -->
+                <div class="col-12 col-sm-4">
+                    <div class="team-card">
+                        <div class="team-card-image">
+                            <img src="https://www.w3schools.com/bootstrap4/img_avatar6.png" alt="Manager">
+                        </div>
+                        <div class="team-card-content">
+                            <h4 class="team-card-name">Carlos Manager</h4>
+                            <p class="team-card-role">Project Manager</p>
+                            <div class="team-social-links">
+                                <a href="#" class="team-social-link" title="LinkedIn">
+                                    <i class="fab fa-linkedin"></i>
+                                </a>
+                                <a href="#" class="team-social-link" title="Email">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
