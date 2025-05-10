@@ -235,7 +235,6 @@ async function printCategories() {
         const categorias = await getPokemonCategories();
         // Agrupar las categorías en slides de 5 (desktop) o 2 (móvil)
         const itemsPerSlideDesktop = 5;
-        const itemsPerSlideMobile = 2;
         let carouselItems = '';
         for (let i = 0; i < categorias.length; i += itemsPerSlideDesktop) {
             const group = categorias.slice(i, i + itemsPerSlideDesktop);
@@ -257,7 +256,15 @@ async function printCategories() {
             `;
         }
         document.getElementById("carouselCategorias").innerHTML = carouselItems;
-        // No se necesita carrusel() ni flechas
+        // Generar el HTML para el dropdown de categorías
+        const menuItems = categorias.map(element => `
+            <li>
+                <a onclick="SaveUrlCategory('${element.url}')" href="#pokemon-container" class="dropdown-item">
+                    ${element.name}
+                </a>
+            </li>
+        `).join('');
+        document.getElementById("pokemon-categoria").innerHTML = menuItems;
     } catch (error) {
         console.error("Error al imprimir categorías:", error);
         throw error;

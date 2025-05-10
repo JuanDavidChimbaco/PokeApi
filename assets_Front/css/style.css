@@ -1695,4 +1695,33 @@ header.header-hidden {
         font-size: 0.8rem;
     }
 }
+
+/* =============================
+   Carrusel de Categorías - Ajuste visual para llenar horizontalmente
+   ============================= */
+#carouselCategorias .carousel-item .row {
+    width: 100%;
+    margin: 0;
+}
+
+#carouselCategorias .carousel-item .col {
+    flex: 1 0 0%;
+    max-width: 20%; /* 100% / 5 cards en desktop */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@media (max-width: 991.98px) {
+    #carouselCategorias .carousel-item .col {
+        max-width: 50%; /* 2 cards por fila en móvil */
+    }
+}
+
+#carouselCategorias .categoria-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+}
   
