@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="assets_Front/css/style.css">
 </head>
 
-<body onload=" printCategories(), searchPokemon() ,getPokemon()" class="container">
+<body onload=" printCategories(), getAllPokemon()" class="container">
 
     <!-- Header -->
     <header>
@@ -33,7 +33,7 @@
         <div class="row g-0">
             <div class="col-12">
                 <div class="d-flex align-items-center justify-content-center bg-dark text-white py-2">
-                    <p class="header-envio m-0 text-center px-2"> Envío gratis a todo el mundo en compras de más de $499 </p>
+                    <p class="header-envio m-0 text-center px-2"> Envío gratis a todo el mundo en compras de más de $5000 </p>
                 </div>
             </div>
         </div>
@@ -191,7 +191,7 @@
             <div class="categoria-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 id="categoria-actual" class="mb-0">Todos los Pokémon</h4>
-                    <button id="btn-mostrar-todos" class="btn d-none" onclick="mostrarTodos()">
+                    <button id="btn-mostrar-todos" class="btn d-none" onclick="viewAllPokemon()">
                         <i class="fas fa-list"></i> <span class="d-none d-md-inline">Mostrar Todos</span>
                     </button>
                 </div>
@@ -348,14 +348,14 @@
 
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-modal="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title fs-1" id="exampleModalLabel">Detalle PokeProducto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
-                    <div id="detallePokemon" class="p-3">
+                    <div id="detallePokemon" class="p-2">
                     </div>
                 </div>
                 <div class="modal-footer">

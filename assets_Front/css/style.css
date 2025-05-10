@@ -164,6 +164,8 @@ header.header-hidden {
 .pokemon-card {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     border: 1px solid rgba(0,0,0,0.1);
+    cursor: grab;
+    user-select: none;
 }
 
 /* Efecto hover en tarjetas */
@@ -262,6 +264,8 @@ header.header-hidden {
     border-radius: 50%;
     transition: all 0.3s ease;
     cursor: pointer;
+    min-width: 60px;
+    min-height: 60px;
 }
 
 .cart-drop-zone.drag-over {
@@ -271,22 +275,11 @@ header.header-hidden {
     box-shadow: 0 0 15px var(--accent-color);
 }
 
-.pokemon-card {
-    cursor: grab;
-    transition: all 0.3s ease;
-    user-select: none;
-}
-
 .pokemon-card.dragging {
     opacity: 0.5;
     transform: scale(0.95);
     box-shadow: 0 0 15px var(--accent-color);
     cursor: grabbing;
-}
-
-.pokemon-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 /* Animación de pulso para el carrito */
@@ -591,7 +584,7 @@ header.header-hidden {
     line-height: 40px;
     border-radius: 50%;
     opacity: 0.7;
-    z-index: 9999;
+    z-index: 1040;
     cursor: pointer;
   }
   
